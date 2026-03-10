@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Direct imports — no public folder needed!
 import bajaj from '../assets/logos/bajaj_auto_private_limited.png';
 import cipla from '../assets/logos/capla_limited.png';
 import dhoot from '../assets/logos/dhoot_automotive_limited.png';
@@ -92,7 +91,6 @@ function OurClients() {
     <div style={{ background: 'white', padding: '4.5rem 0', overflow: 'hidden', borderTop: '1px solid #f0f2ff', borderBottom: '1px solid #f0f2ff' }}>
 
       <div style={{ textAlign: 'center', marginBottom: '2.5rem', padding: '0 5%' }}>
-        {/* Professional pill label */}
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#eef0ff', border: '1.5px solid #c7d2fe', borderRadius: '100px', padding: '0.45rem 1.25rem', marginBottom: '1.25rem' }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4361ee', display: 'inline-block' }} />
           <span style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.78rem', fontWeight: 800, color: '#4361ee', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Our Clients</span>
@@ -102,7 +100,7 @@ function OurClients() {
           Powering Logistics for <span style={{ color: '#4361ee' }}>India's Finest</span> Industries
         </h2>
         <p style={{ color: '#6b7280', fontSize: '1rem', maxWidth: '480px', margin: '0 auto', fontFamily: 'DM Sans, sans-serif' }}>
-          Trusted by leading manufacturers, pharma giants & industrial brands across India.
+          Trusted by leading manufacturers, pharma giants and industrial brands across India.
         </p>
       </div>
 
@@ -127,13 +125,12 @@ function OurClients() {
       {/* Stats */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap', marginTop: '3rem', padding: '0 5%' }}>
         {[
-          { val: '20+', label: 'Pithampur Companies', icon: '🏭' },
-          { val: '20+', label: 'Factories Served', icon: '🏗️' },
-          { val: '₹50Lakh', label: 'Goods Delivered', icon: '📦' },
-          { val: '99.2%', label: 'On-Time Delivery', icon: '⏱️' },
+          { val: '20+',     label: 'Pithampur Companies' },
+          { val: '20+',     label: 'Factories Served' },
+          { val: 'Rs.50L+', label: 'Goods Delivered' },
+          { val: '99.2%',   label: 'On-Time Delivery' },
         ].map((s, i) => (
           <div key={i} style={{ textAlign: 'center', padding: '1rem 1.75rem', background: '#f5f7ff', borderRadius: '14px', border: '1px solid #e8eaff', minWidth: '150px' }}>
-            <div style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{s.icon}</div>
             <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.6rem', fontWeight: 900, color: '#4361ee', lineHeight: 1, margin: 0 }}>{s.val}</p>
             <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '4px 0 0' }}>{s.label}</p>
           </div>

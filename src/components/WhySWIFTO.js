@@ -2,19 +2,19 @@ import React from 'react';
 
 function WhySWIFTO() {
   const reasons = [
-    { icon: '⚡', title: '10 Min Truck Confirm', desc: 'AI se 10 minute mein nearest truck confirm ho jaata hai — koi wait nahi, koi tension nahi!' },
-    { icon: '📍', title: 'Real-Time Tracking', desc: 'GPS se apna truck live track karo — har minute ka update milega SMS aur WhatsApp pe!' },
-    { icon: '💰', title: 'Best Price Guarantee', desc: 'AI se transparent pricing — koi hidden charges nahi, jo dikhega wohi bharoge!' },
-    { icon: '🚛', title: 'Largest Fleet', desc: '7ft se 40ft Container tak — 500+ trucks available, ek hi platform pe sab kuch!' },
-    { icon: '🤖', title: 'Hindi AI Agent', desc: 'India ka pehla Hindi Voice AI logistics assistant — 24/7 Hindi mein baat karo!' },
-    { icon: '💸', title: '24hr Payment', desc: 'Delivery complete hote hi 24 ghante mein payment — 30-60 din ka wait khatam!' },
+    { icon: '10',   title: '10 Min Truck Confirm',  desc: 'AI confirms the nearest truck in 10 minutes — no waiting, no hassle.' },
+    { icon: 'GPS',  title: 'Real-Time Tracking',    desc: 'Track your truck live via GPS — get updates every minute on SMS and WhatsApp.' },
+    { icon: 'Rs.',  title: 'Best Price Guarantee',  desc: 'AI-powered transparent pricing — no hidden charges, pay only what you see.' },
+    { icon: '500+', title: 'Largest Fleet',         desc: 'From 7ft to 40ft Container — 500+ trucks available on a single platform.' },
+    { icon: 'AI',   title: 'Hindi AI Agent',        desc: 'India\'s first Hindi Voice AI logistics assistant — available 24/7 in Hindi.' },
+    { icon: '24h',  title: '24hr Payment',          desc: 'Payment processed within 24 hours of delivery — no more 30-60 day waits.' },
   ];
 
   const stats = [
-    { value: '20+', label: 'Factories Served', sub: 'Pithampur & Pan India' },
-    { value: '2500+', label: 'Trucks Network', sub: 'MP, MH, RJ & more' },
-    { value: '10 Min', label: 'Truck Confirm', sub: 'Average time' },
-    { value: '24hr', label: 'Payment', sub: 'Guaranteed' },
+    { value: '20+',    label: 'Factories Served', sub: 'Pithampur and Pan India' },
+    { value: '2500+',  label: 'Trucks Network',   sub: 'MP, MH, RJ and more' },
+    { value: '10 Min', label: 'Truck Confirm',    sub: 'Average time' },
+    { value: '24hr',   label: 'Payment',          sub: 'Guaranteed' },
   ];
 
   return (
@@ -81,10 +81,10 @@ function WhySWIFTO() {
         }}>
           Why <span style={{ color: '#4361ee' }}>SWIFTO?</span>
         </h2>
-        <p style={{ color: '#374151', fontSize: '1rem' }}>Competitors se better — yeh hai proof!</p>
+        <p style={{ color: '#374151', fontSize: '1rem' }}>Better than competitors — here is the proof.</p>
       </div>
 
-      {/* ✅ FIXED: auto-fit grid — mobile pe 1 col, tablet pe 2 col, desktop pe 3 col */}
+      {/* Reasons Grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -97,8 +97,8 @@ function WhySWIFTO() {
         {reasons.map((r, i) => (
           <div key={i}
             style={{
-              background: 'white',
-              border: '1.5px solid #e8eaff',
+              background: '#eef0ff',
+              border: '1.5px solid #c7d2fe',
               borderRadius: '20px',
               padding: '2rem',
               boxShadow: '0 2px 12px rgba(67,97,238,0.06)',
@@ -108,15 +108,30 @@ function WhySWIFTO() {
             onMouseEnter={e => {
               e.currentTarget.style.borderColor = '#4361ee';
               e.currentTarget.style.transform = 'translateY(-5px)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(67,97,238,0.15)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(67,97,238,0.2)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = '#e8eaff';
+              e.currentTarget.style.borderColor = '#c7d2fe';
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = '0 2px 12px rgba(67,97,238,0.06)';
             }}
           >
-            <div style={{ fontSize: '2.8rem', marginBottom: '1rem' }}>{r.icon}</div>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              background: '#4361ee',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '1rem',
+              fontFamily: 'Manrope, sans-serif',
+              fontWeight: 900,
+              fontSize: '0.85rem',
+              color: 'white',
+            }}>
+              {r.icon}
+            </div>
             <h3 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.1rem', fontWeight: 900, color: '#1a1a2e', marginBottom: '0.6rem' }}>{r.title}</h3>
             <p style={{ color: '#6b7280', fontSize: '0.88rem', lineHeight: 1.65, margin: 0 }}>{r.desc}</p>
           </div>
@@ -125,9 +140,7 @@ function WhySWIFTO() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&display=swap');
-
         @media (max-width: 640px) {
-          /* Stats — 2 columns on mobile */
           .whyswifto-stats {
             grid-template-columns: repeat(2, 1fr) !important;
           }

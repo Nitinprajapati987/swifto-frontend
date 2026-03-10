@@ -6,26 +6,26 @@ function Vehicles() {
   const navigate = useNavigate();
 
   const trucks = [
-    { name: '7 ft Truck', category: 'Small Truck', use: 'Local delivery, courier', popular: false },
-    { name: '8 ft Truck', category: 'Small Truck', use: 'Kirana supply, courier', popular: false },
-    { name: '10 ft Truck', category: 'Small Truck', use: 'Local delivery, retail', popular: false },
-    { name: '12 ft Truck', category: 'Small Truck', use: 'Courier, local supply', popular: false },
-    { name: '14 ft Truck', category: 'Small Truck', use: 'City + short highway', popular: false },
-    { name: '19 ft Truck', category: 'Medium Truck', use: '1-2 BHK shifting, FMCG', popular: true },
-    { name: '20 ft Truck', category: 'Medium Truck', use: 'Retail goods, shifting', popular: false },
-    { name: '22 ft Truck', category: 'Medium Truck', use: '2-3 BHK shifting, FMCG', popular: true },
-    { name: '24 ft Truck', category: 'Medium Truck', use: 'Bulk retail, shifting', popular: true },
-    { name: '28 ft Truck', category: 'Heavy Truck', use: 'Large commercial transport', popular: false },
-    { name: '30 ft Truck', category: 'Heavy Truck', use: 'Bulk material transport', popular: false },
-    { name: '32 ft Truck', category: 'Heavy Truck', use: 'Highway bulk transport', popular: true },
-    { name: '20 ft Container', category: 'Container', use: 'Export-import, factory', popular: false },
-    { name: '32 ft Single Axle', category: 'Container', use: 'Factory goods, export', popular: false },
-    { name: '32 ft Multi Axle', category: 'Container', use: 'Heavy factory goods', popular: true },
-    { name: '40 ft Container', category: 'Container', use: 'Bulk export-import', popular: false },
-    { name: 'Dumper', category: 'Special', use: 'Sand, gravel, debris', popular: false },
-    { name: 'Trailer (40-50 ft)', category: 'Special', use: 'ODC cargo transport', popular: false },
-    { name: 'Flatbed', category: 'Special', use: 'Heavy machine transport', popular: false },
-    { name: 'Tanker', category: 'Special', use: 'Oil, water, chemicals', popular: false },
+    { name: '7 ft Truck',         category: 'Small Truck',  use: 'Local delivery, courier',          popular: false },
+    { name: '8 ft Truck',         category: 'Small Truck',  use: 'Kirana supply, courier',           popular: false },
+    { name: '10 ft Truck',        category: 'Small Truck',  use: 'Local delivery, retail',           popular: false },
+    { name: '12 ft Truck',        category: 'Small Truck',  use: 'Courier, local supply',            popular: false },
+    { name: '14 ft Truck',        category: 'Small Truck',  use: 'City and short highway',           popular: false },
+    { name: '19 ft Truck',        category: 'Medium Truck', use: '1-2 BHK shifting, FMCG',          popular: true  },
+    { name: '20 ft Truck',        category: 'Medium Truck', use: 'Retail goods, shifting',           popular: false },
+    { name: '22 ft Truck',        category: 'Medium Truck', use: '2-3 BHK shifting, FMCG',          popular: true  },
+    { name: '24 ft Truck',        category: 'Medium Truck', use: 'Bulk retail, shifting',            popular: true  },
+    { name: '28 ft Truck',        category: 'Heavy Truck',  use: 'Large commercial transport',       popular: false },
+    { name: '30 ft Truck',        category: 'Heavy Truck',  use: 'Bulk material transport',          popular: false },
+    { name: '32 ft Truck',        category: 'Heavy Truck',  use: 'Highway bulk transport',           popular: true  },
+    { name: '20 ft Container',    category: 'Container',    use: 'Export-import, factory',           popular: false },
+    { name: '32 ft Single Axle',  category: 'Container',    use: 'Factory goods, export',            popular: false },
+    { name: '32 ft Multi Axle',   category: 'Container',    use: 'Heavy factory goods',              popular: true  },
+    { name: '40 ft Container',    category: 'Container',    use: 'Bulk export-import',               popular: false },
+    { name: 'Dumper',             category: 'Special',      use: 'Sand, gravel, debris',             popular: false },
+    { name: 'Trailer (40-50 ft)', category: 'Special',      use: 'ODC cargo transport',              popular: false },
+    { name: 'Flatbed',            category: 'Special',      use: 'Heavy machine transport',          popular: false },
+    { name: 'Tanker',             category: 'Special',      use: 'Oil, water, chemicals',            popular: false },
   ];
 
   const filteredTrucks = trucks.filter(t =>
@@ -35,11 +35,11 @@ function Vehicles() {
   );
 
   const categoryColors = {
-    'Small Truck': { bg: '#e8f5e9', accent: '#22c55e' },
+    'Small Truck':  { bg: '#e8f5e9', accent: '#22c55e' },
     'Medium Truck': { bg: '#eef0ff', accent: '#4361ee' },
-    'Heavy Truck': { bg: '#fff3e0', accent: '#f59e0b' },
-    'Container': { bg: '#fce4ec', accent: '#f5576c' },
-    'Special': { bg: '#f3e5f5', accent: '#764ba2' },
+    'Heavy Truck':  { bg: '#fff3e0', accent: '#f59e0b' },
+    'Container':    { bg: '#fce4ec', accent: '#f5576c' },
+    'Special':      { bg: '#f3e5f5', accent: '#764ba2' },
   };
 
   return (
@@ -50,14 +50,14 @@ function Vehicles() {
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ display: 'inline-block', background: '#eef0ff', color: '#4361ee', fontSize: '0.75rem', fontWeight: 700, padding: '0.35rem 1rem', borderRadius: '100px', marginBottom: '0.75rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Our Fleet</div>
           <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 900, color: '#1a1a2e', letterSpacing: '-0.5px', marginBottom: '0.5rem' }}>
-            Har Size Ka <span style={{ color: '#4361ee' }}>Truck Available</span>
+            Every Size <span style={{ color: '#4361ee' }}>Truck Available</span>
           </h2>
-          <p style={{ color: '#6b7280', fontSize: '1rem', marginBottom: '1.5rem' }}>7 ft se 40 ft Container tak — sab available!</p>
+          <p style={{ color: '#6b7280', fontSize: '1rem', marginBottom: '1.5rem' }}>From 7 ft to 40 ft Container — all available</p>
 
           {/* Search */}
           <input
             type="text"
-            placeholder="🔍 Search truck size, category, use..."
+            placeholder="Search truck size, category, use..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ background: '#f5f7ff', color: '#1a1a2e', padding: '0.85rem 1.5rem', borderRadius: '100px', width: '100%', maxWidth: '420px', outline: 'none', border: '1.5px solid #e8eaff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif' }}
@@ -75,24 +75,24 @@ function Vehicles() {
                 onMouseLeave={e => { e.currentTarget.style.background = '#f5f7ff'; e.currentTarget.style.borderColor = '#e8eaff'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.querySelectorAll('.tv-name').forEach(el => el.style.color = '#1a1a2e'); e.currentTarget.querySelectorAll('.tv-cat').forEach(el => el.style.color = colors.accent); e.currentTarget.querySelectorAll('.tv-use').forEach(el => el.style.color = '#6b7280'); }}
               >
                 {v.popular && (
-                  <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#4361ee', color: 'white', fontSize: '0.6rem', fontWeight: 700, padding: '2px 7px', borderRadius: '100px' }}>🔥 Popular</span>
+                  <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#4361ee', color: 'white', fontSize: '0.6rem', fontWeight: 700, padding: '2px 7px', borderRadius: '100px' }}>Popular</span>
                 )}
 
-                {/* Truck Icon Box — Porter style */}
-                <div style={{ width: '64px', height: '64px', background: colors.bg, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontSize: '2rem' }}>
-                  🚛
+                {/* Truck Icon Box */}
+                <div style={{ width: '64px', height: '64px', background: colors.bg, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem' }}>
+                  <span style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.65rem', fontWeight: 800, color: colors.accent, textAlign: 'center', lineHeight: 1.2 }}>{v.name}</span>
                 </div>
 
                 <h3 className="tv-name" style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.88rem', fontWeight: 800, color: '#1a1a2e', marginBottom: '0.25rem', transition: 'color 0.2s' }}>{v.name}</h3>
                 <p className="tv-cat" style={{ fontSize: '0.7rem', color: colors.accent, fontWeight: 700, marginBottom: '0.4rem', transition: 'color 0.2s' }}>{v.category}</p>
-                <p className="tv-use" style={{ fontSize: '0.7rem', color: '#6b7280', lineHeight: 1.4, transition: 'color 0.2s' }}>📦 {v.use}</p>
+                <p className="tv-use" style={{ fontSize: '0.7rem', color: '#6b7280', lineHeight: 1.4, transition: 'color 0.2s' }}>{v.use}</p>
               </div>
             );
           })}
         </div>
 
         {filteredTrucks.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem', fontSize: '0.9rem' }}>Koi truck nahi mila 🔍</p>
+          <p style={{ textAlign: 'center', color: '#6b7280', marginTop: '2rem', fontSize: '0.9rem' }}>No vehicles found</p>
         )}
 
       </div>

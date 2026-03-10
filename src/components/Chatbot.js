@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: 'bot', text: 'Namaste! 🙏 Main SWIFTO ka AI Assistant Arjun hoon!\n\nAapki kya madad kar sakta hoon?' },
+    { from: 'bot', text: 'Welcome to SWIFTO! I am Arjun, your AI Assistant.\n\nHow may I assist you today?' },
   ]);
   const [input, setInput] = useState('');
   const [step, setStep] = useState(0);
@@ -21,7 +21,6 @@ function Chatbot() {
   }, [messages]);
 
   useEffect(() => {
-    // Preload voices
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.getVoices();
     }
@@ -32,8 +31,7 @@ function Chatbot() {
     window.speechSynthesis.cancel();
     const clean = text
       .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
-      .replace(/[🙏🚀✅📍📦🚛🚢🚜🛵🚗💰📞📧⏰🤖😅]/g, '')
-      .replace(/\n/g, ' । ')
+      .replace(/\n/g, ' . ')
       .replace(/—/g, ' ');
 
     const utter = new SpeechSynthesisUtterance(clean);
@@ -59,7 +57,7 @@ function Chatbot() {
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Voice support ke liye Chrome use karo!');
+      alert('Please use Chrome for voice support.');
       return;
     }
     const recognition = new SpeechRecognition();
@@ -88,11 +86,11 @@ function Chatbot() {
   };
 
   const quickReplies = [
-    { label: '📦 Delivery Book Karo', value: 'booking' },
-    { label: '🚛 Vehicles Dekho', value: 'vehicles' },
-    { label: '📍 Order Track Karo', value: 'track' },
-    { label: '💰 Price Jaano', value: 'price' },
-    { label: '📞 Contact Karo', value: 'contact' },
+    { label: 'Book a Delivery', value: 'booking' },
+    { label: 'View Vehicles', value: 'vehicles' },
+    { label: 'Track Order', value: 'track' },
+    { label: 'Check Pricing', value: 'price' },
+    { label: 'Contact Us', value: 'contact' },
   ];
 
   const handleQuick = (value) => {
@@ -103,14 +101,14 @@ function Chatbot() {
     setTimeout(() => {
       if (value === 'booking' || value === 'price') {
         setStep(1);
-        addBotMsg('Bilkul! Chalo shuru karte hain! 🚀\n\nPehle batao — Pickup location kahan se hai?');
+        addBotMsg('Great! Let us get started.\n\nPlease enter your Pickup location.');
       } else if (value === 'vehicles') {
-        addBotMsg('Hamare paas yeh vehicles hain:\n\n🛵 Two Wheeler — Upto 20 kg\n🚗 Car / Sedan — Upto 100 kg\n🚛 Small Trucks — 7ft to 14ft\n🚚 Medium Trucks — 19ft to 24ft\n🚛 Heavy Trucks — 28ft to 32ft\n🚢 Containers — 20ft to 40ft\n🚜 Special — Dumper, Tanker, Flatbed\n\nKaunsa chahiye? Booking ke liye "Book Karo" likho!');
+        addBotMsg('We offer the following vehicles:\n\nTwo Wheeler - Up to 20 kg\nCar / Sedan - Up to 100 kg\nSmall Trucks - 7ft to 14ft\nMedium Trucks - 19ft to 24ft\nHeavy Trucks - 28ft to 32ft\nContainers - 20ft to 40ft\nSpecial Vehicles - Dumper, Tanker, Flatbed\n\nType "Book Now" to proceed with a booking.');
       } else if (value === 'track') {
-        addBotMsg('Track page pe bhej raha hoon! 📍');
+        addBotMsg('Redirecting you to the Tracking page...');
         setTimeout(() => navigate('/tracking'), 1500);
       } else if (value === 'contact') {
-        addBotMsg('Hamse contact karo:\n\n📞 +91 98765 43210\n📧 support@swifto.in\n📍 Pithampur, Indore, MP\n\n✅ 24/7 available hain — call karo ya WhatsApp karo!');
+        addBotMsg('You can reach us at:\n\nPhone: +91 98765 43210\nEmail: support@swifto.in\nAddress: Pithampur, Indore, MP\n\nWe are available 24/7 — call or WhatsApp us anytime.');
       }
     }, 400);
   };
@@ -126,11 +124,11 @@ function Chatbot() {
       if (step === 1) {
         setBookingData(prev => ({ ...prev, pickup: userText }));
         setStep(2);
-        addBotMsg(`📍 Pickup: ${userText} ✅\n\nAb batao — Drop location kahan hai?`);
+        addBotMsg(`Pickup Location: ${userText}\n\nPlease enter your Drop location.`);
       } else if (step === 2) {
         setBookingData(prev => ({ ...prev, drop: userText }));
         setStep(3);
-        addBotMsg(`📦 Drop: ${userText} ✅\n\nKaunsa vehicle chahiye?\n\n1️⃣ Two Wheeler\n2️⃣ Car / Sedan\n3️⃣ Small Truck (7-14 ft)\n4️⃣ Medium Truck (19-24 ft)\n5️⃣ Heavy / Container\n\nNumber ya naam likho!`);
+        addBotMsg(`Drop Location: ${userText}\n\nWhich vehicle do you need?\n\n1. Two Wheeler\n2. Car / Sedan\n3. Small Truck (7-14 ft)\n4. Medium Truck (19-24 ft)\n5. Heavy Truck / Container\n\nEnter a number or vehicle name.`);
       } else if (step === 3) {
         const vehicleMap = {
           '1': 'Two Wheeler', '2': 'Car / Sedan',
@@ -139,28 +137,27 @@ function Chatbot() {
         const selectedVehicle = vehicleMap[userText.trim()] || userText;
         setBookingData(prev => ({ ...prev, vehicle: selectedVehicle }));
         setStep(0);
-        addBotMsg(`✅ Summary:\n\n📍 Pickup: ${bookingData.pickup}\n📦 Drop: ${bookingData.drop}\n🚛 Vehicle: ${selectedVehicle}\n\nBooking page pe bhej raha hoon! 🚀`);
+        addBotMsg(`Booking Summary:\n\nPickup: ${bookingData.pickup}\nDrop: ${bookingData.drop}\nVehicle: ${selectedVehicle}\n\nRedirecting you to the Booking page...`);
         setTimeout(() => {
           navigate(`/booking?pickup=${encodeURIComponent(bookingData.pickup)}&drop=${encodeURIComponent(bookingData.drop)}&vehicle=${encodeURIComponent(selectedVehicle)}`);
         }, 2000);
       } else {
-        // General responses
         const lower = userText.toLowerCase();
-        if (lower.includes('price') || lower.includes('rate') || lower.includes('kitna') || lower.includes('cost')) {
-          addBotMsg('Price route aur vehicle pe depend karti hai:\n\n🛵 Bike: ₹49 se shuru\n🚗 Car: ₹99 se shuru\n🚛 Truck: Route ke hisaab se\n\nExact price ke liye ab batao — Pickup kahan se?');
+        if (lower.includes('price') || lower.includes('rate') || lower.includes('cost') || lower.includes('kitna')) {
+          addBotMsg('Our pricing depends on route and vehicle type:\n\nTwo Wheeler: Starting at Rs.49\nCar / Sedan: Starting at Rs.99\nTrucks: Based on route and load\n\nFor an exact quote, please enter your Pickup location.');
           setStep(1);
-        } else if (lower.includes('track') || lower.includes('order') || lower.includes('kahan hai')) {
-          addBotMsg('Track page pe ja raha hoon! 📍');
+        } else if (lower.includes('track') || lower.includes('order') || lower.includes('kahan')) {
+          addBotMsg('Redirecting you to the Tracking page...');
           setTimeout(() => navigate('/tracking'), 1500);
-        } else if (lower.includes('book') || lower.includes('delivery') || lower.includes('truck') || lower.includes('chahiye')) {
+        } else if (lower.includes('book') || lower.includes('delivery') || lower.includes('truck') || lower.includes('vehicle')) {
           setStep(1);
-          addBotMsg('Booking shuru karte hain! 🚀\n\nPehle batao — Pickup location kahan se hai?');
-        } else if (lower.match(/namaste|hello|hi|helo|hola|hey/)) {
-          addBotMsg('Namaste! 🙏 Main SWIFTO Assistant Arjun hoon!\n\nKya karein?\n📦 Delivery book karein\n📍 Order track karein\n💰 Price jaanein\n\nBatao kya madad chahiye!');
+          addBotMsg('Let us begin your booking.\n\nPlease enter your Pickup location.');
+        } else if (lower.match(/hello|hi|hey|namaste/)) {
+          addBotMsg('Hello! I am Arjun, SWIFTO AI Assistant.\n\nI can help you with:\n- Book a Delivery\n- Track your Order\n- Check Pricing\n\nHow may I assist you?');
         } else if (lower.includes('contact') || lower.includes('call') || lower.includes('phone')) {
-          addBotMsg('Hamse baat karo:\n\n📞 +91 98765 43210\n📧 support@swifto.in\n\n24/7 available hain! 😊');
+          addBotMsg('You can reach us at:\n\nPhone: +91 98765 43210\nEmail: support@swifto.in\n\nWe are available 24/7.');
         } else {
-          addBotMsg('Samajh nahi aaya 😅\n\nNeeche ke buttons use karo ya directly likho:\n● "Booking karo"\n● "Price batao"\n● "Order track karo"\n● "Contact karo"');
+          addBotMsg('I am sorry, I did not understand that.\n\nPlease use the quick options below or type:\n- "Book a delivery"\n- "Check pricing"\n- "Track my order"\n- "Contact us"');
         }
       }
     }, 400);
@@ -178,7 +175,7 @@ function Chatbot() {
     setOpen(newOpen);
     if (newOpen && !hasInteracted) {
       setTimeout(() => {
-        speak('Namaste! Main SWIFTO ka Assistant Arjun hoon. Aapki kya madad kar sakta hoon?');
+        speak('Welcome to SWIFTO. I am Arjun, your AI Assistant. How may I help you?');
       }, 300);
     }
   };
@@ -188,10 +185,10 @@ function Chatbot() {
       {/* FAB Button */}
       <button
         onClick={handleToggle}
-        className="fixed bottom-6 right-6 bg-yellow-400 text-black w-16 h-16 rounded-full text-3xl shadow-2xl shadow-yellow-400/30 z-50 hover:bg-yellow-300 transition-all duration-200 hover:scale-110 flex items-center justify-center"
+        className="fixed bottom-6 right-6 bg-yellow-400 text-black w-16 h-16 rounded-full text-sm font-bold shadow-2xl shadow-yellow-400/30 z-50 hover:bg-yellow-300 transition-all duration-200 hover:scale-110 flex items-center justify-center"
         aria-label="Open chat"
       >
-        {open ? '✕' : '🤖'}
+        {open ? 'Close' : 'Chat'}
       </button>
 
       {open && (
@@ -201,13 +198,13 @@ function Chatbot() {
         >
           {/* Header */}
           <div className="bg-black px-4 py-3 flex items-center gap-3 border-b border-gray-800">
-            <div className={`w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-xl flex-shrink-0 ${speaking ? 'animate-pulse' : ''}`}>
-              🤖
+            <div className={`w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${speaking ? 'animate-pulse' : ''}`}>
+              AI
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white font-bold text-sm">Arjun — SWIFTO AI</p>
               <p className={`text-xs ${speaking ? 'text-yellow-400' : 'text-green-400'}`}>
-                {speaking ? '🔊 Bol raha hoon...' : '● Online — 24/7'}
+                {speaking ? 'Speaking...' : 'Online — 24/7'}
               </p>
             </div>
             {speaking && (
@@ -215,7 +212,7 @@ function Chatbot() {
                 onClick={() => { window.speechSynthesis.cancel(); setSpeaking(false); }}
                 className="text-red-400 text-xs hover:text-red-300 flex-shrink-0"
               >
-                🔇
+                Mute
               </button>
             )}
           </div>
@@ -234,9 +231,9 @@ function Chatbot() {
                     <button
                       onClick={() => speak(msg.text)}
                       className="ml-2 text-gray-500 hover:text-yellow-400 text-xs align-middle"
-                      title="Sunao"
+                      title="Listen"
                     >
-                      🔊
+                      [Listen]
                     </button>
                   )}
                 </div>
@@ -245,7 +242,7 @@ function Chatbot() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Quick Replies — only show at start */}
+          {/* Quick Replies */}
           {step === 0 && messages.length <= 2 && (
             <div className="px-3 pb-2 flex flex-wrap gap-1.5">
               {quickReplies.map((q) => (
@@ -267,27 +264,27 @@ function Chatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={listening ? '🎤 Sun raha hoon...' : step > 0 ? 'Jawab do...' : 'Message likho ya bolo...'}
+              placeholder={listening ? 'Listening...' : step > 0 ? 'Type your answer...' : 'Type a message...'}
               className={`flex-1 bg-gray-800 text-white px-3 py-2 rounded-xl text-sm outline-none border transition-colors ${
                 listening ? 'border-red-400' : 'border-gray-700 focus:border-yellow-400'
               }`}
             />
             <button
               onClick={listening ? stopListening : startListening}
-              className={`px-3 py-2 rounded-xl font-bold transition text-base flex-shrink-0 ${
+              className={`px-3 py-2 rounded-xl font-bold transition text-xs flex-shrink-0 ${
                 listening
                   ? 'bg-red-500 text-white animate-pulse'
                   : 'bg-gray-700 text-white hover:bg-gray-600'
               }`}
-              title={listening ? 'Stop' : 'Voice input'}
+              title={listening ? 'Stop' : 'Voice Input'}
             >
-              {listening ? '⏹' : '🎤'}
+              {listening ? 'Stop' : 'Voice'}
             </button>
             <button
               onClick={handleSend}
-              className="bg-yellow-400 text-black px-3 py-2 rounded-xl font-bold hover:bg-yellow-300 transition flex-shrink-0"
+              className="bg-yellow-400 text-black px-3 py-2 rounded-xl font-bold hover:bg-yellow-300 transition flex-shrink-0 text-xs"
             >
-              ➤
+              Send
             </button>
           </div>
         </div>

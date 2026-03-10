@@ -106,7 +106,7 @@ function DriverPartner() {
               border: step === s.num ? '3px solid #1a3aad' : 'none',
               transition: 'all 0.3s',
             }}>
-              {step > s.num ? 'Done' : s.num}
+              {step > s.num ? '✓' : s.num}
             </div>
             <span style={{ fontSize: '0.65rem', color: step >= s.num ? '#4361ee' : '#9ca3af', fontWeight: 600 }}>
               {s.label}
@@ -124,7 +124,6 @@ function DriverPartner() {
     </div>
   );
 
-  // Step 4 — Success
   if (step === 4) {
     return (
       <div style={{ background: 'linear-gradient(135deg, #eef0ff 0%, #dde3ff 50%, #c8d2ff 100%)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -136,7 +135,6 @@ function DriverPartner() {
             <p style={{ color: '#777', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
               Our team will contact you at <strong style={{ color: '#4361ee' }}>{form.phone}</strong> within 24 hours.
             </p>
-
             <div style={{ background: '#f5f7ff', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', textAlign: 'left' }}>
               <p style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>Registration Summary</p>
               {[
@@ -154,19 +152,12 @@ function DriverPartner() {
                 </div>
               ))}
             </div>
-
             <div style={{ background: '#eef0ff', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', textAlign: 'left' }}>
               <p style={{ fontWeight: 700, color: '#4361ee', fontSize: '0.85rem', marginBottom: '0.5rem' }}>What happens next?</p>
-              {[
-                'Documents will be verified within 24 hours',
-                'SWIFTO team will call you',
-                'Training will be provided',
-                'You will start receiving loads',
-              ].map((item, i) => (
-                <p key={i} style={{ fontSize: '0.8rem', color: '#374151', marginBottom: '0.25rem' }}>- {item}</p>
+              {['Documents will be verified within 24 hours', 'SWIFTO team will call you', 'Training will be provided', 'You will start receiving loads'].map((item, i) => (
+                <p key={i} style={{ fontSize: '0.8rem', color: '#374151', marginBottom: '0.25rem' }}>✓ {item}</p>
               ))}
             </div>
-
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
                 onClick={() => { setStep(1); setForm({ name: '', phone: '', city: '', vehicle: '', source: '', rcNumber: '', licenseNumber: '', experience: '', fleetSize: '1' }); }}
@@ -188,7 +179,9 @@ function DriverPartner() {
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: 'linear-gradient(135deg, #eef0ff 0%, #dde3ff 50%, #c8d2ff 100%)', minHeight: '100vh' }}>
       <Navbar />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '7rem 5% 3rem', display: 'grid', gridTemplateColumns: '1fr 440px', gap: '3rem', alignItems: 'start' }}>
+
+      {/* ✅ FIX: gridTemplateColumns responsive ban gaya */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '7rem 5% 3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
 
         {/* Left Side */}
         <div>
@@ -198,7 +191,6 @@ function DriverPartner() {
           <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '480px', marginBottom: '2rem' }}>
             Full-time or part-time — become a SWIFTO Partner and get guaranteed loads. Earn on return trips too!
           </p>
-
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '440px', marginBottom: '2rem' }}>
             {[
               ['Guaranteed Loads', 'Never run empty'],
@@ -214,8 +206,7 @@ function DriverPartner() {
               </div>
             ))}
           </div>
-
-          <div style={{ display: 'flex', gap: '2rem' }}>
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
             {[['500+', 'Active Drivers'], ['10K+', 'Trips Done'], ['Rs.2L+', 'Avg Monthly Earning']].map(([num, label]) => (
               <div key={label}>
                 <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#4361ee' }}>{num}</div>
@@ -227,52 +218,37 @@ function DriverPartner() {
 
         {/* Right Side — Form */}
         <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', boxShadow: '0 8px 48px rgba(67,97,238,0.15)', border: '1px solid rgba(67,97,238,0.1)' }}>
-
           <StepIndicator />
-
           {apiError && (
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '0.85rem', marginBottom: '1rem', color: '#dc2626', fontSize: '0.85rem' }}>
               {apiError}
             </div>
           )}
 
-          {/* STEP 1 */}
           {step === 1 && (
             <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                Basic Information
-              </h3>
-
+              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Basic Information</h3>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>Full Name *</label>
-                <input name="name" value={form.name} onChange={handleChange}
-                  placeholder="Enter your full name"
-                  style={inputStyle(errors.name)} />
+                <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your full name" style={inputStyle(errors.name)} />
                 {errors.name && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.name}</p>}
               </div>
-
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>Mobile Number *</label>
-                <input name="phone" value={form.phone} onChange={handleChange}
-                  placeholder="10-digit mobile number"
-                  maxLength={10} style={inputStyle(errors.phone)} />
+                <input name="phone" value={form.phone} onChange={handleChange} placeholder="10-digit mobile number" maxLength={10} style={inputStyle(errors.phone)} />
                 {errors.phone && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.phone}</p>}
               </div>
-
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>City *</label>
-                <select name="city" value={form.city} onChange={handleChange}
-                  style={{ ...inputStyle(errors.city), cursor: 'pointer' }}>
+                <select name="city" value={form.city} onChange={handleChange} style={{ ...inputStyle(errors.city), cursor: 'pointer' }}>
                   <option value="">Select your city</option>
                   {cities.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 {errors.city && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.city}</p>}
               </div>
-
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={labelStyle}>How did you hear about us?</label>
-                <select name="source" value={form.source} onChange={handleChange}
-                  style={{ ...inputStyle(false), cursor: 'pointer' }}>
+                <select name="source" value={form.source} onChange={handleChange} style={{ ...inputStyle(false), cursor: 'pointer' }}>
                   <option value="">Select source</option>
                   {sources.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -280,47 +256,35 @@ function DriverPartner() {
             </div>
           )}
 
-          {/* STEP 2 */}
           {step === 2 && (
             <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                Vehicle Details
-              </h3>
-
+              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Vehicle Details</h3>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>Vehicle Type *</label>
-                <select name="vehicle" value={form.vehicle} onChange={handleChange}
-                  style={{ ...inputStyle(errors.vehicle), cursor: 'pointer' }}>
+                <select name="vehicle" value={form.vehicle} onChange={handleChange} style={{ ...inputStyle(errors.vehicle), cursor: 'pointer' }}>
                   <option value="">Select your vehicle</option>
                   {vehicles.map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
                 {errors.vehicle && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.vehicle}</p>}
               </div>
-
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>Driving Experience *</label>
-                <select name="experience" value={form.experience} onChange={handleChange}
-                  style={{ ...inputStyle(errors.experience), cursor: 'pointer' }}>
+                <select name="experience" value={form.experience} onChange={handleChange} style={{ ...inputStyle(errors.experience), cursor: 'pointer' }}>
                   <option value="">Select experience</option>
                   {experiences.map(e => <option key={e} value={e}>{e}</option>)}
                 </select>
                 {errors.experience && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.experience}</p>}
               </div>
-
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={labelStyle}>Fleet Size (Number of trucks)</label>
-                <select name="fleetSize" value={form.fleetSize} onChange={handleChange}
-                  style={{ ...inputStyle(false), cursor: 'pointer' }}>
+                <select name="fleetSize" value={form.fleetSize} onChange={handleChange} style={{ ...inputStyle(false), cursor: 'pointer' }}>
                   {['1','2','3','4','5','6-10','10+'].map(n => (
                     <option key={n} value={n}>{n} Truck{n !== '1' ? 's' : ''}</option>
                   ))}
                 </select>
               </div>
-
               <div style={{ background: '#eef0ff', borderRadius: '12px', padding: '1rem' }}>
-                <p style={{ fontWeight: 700, color: '#4361ee', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                  Estimated Monthly Earnings
-                </p>
+                <p style={{ fontWeight: 700, color: '#4361ee', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Estimated Monthly Earnings</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                   <span style={{ color: '#6b7280' }}>Per trip average</span>
                   <span style={{ fontWeight: 700, color: '#1a1a2e' }}>Rs.8,000 - Rs.15,000</span>
@@ -337,58 +301,27 @@ function DriverPartner() {
             </div>
           )}
 
-          {/* STEP 3 */}
           {step === 3 && (
             <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
-                Document Details
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.8rem', marginBottom: '1.5rem' }}>
-                These details are required for verification — safe and secure
-              </p>
-
+              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#1a1a2e', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Document Details</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.8rem', marginBottom: '1.5rem' }}>These details are required for verification — safe and secure</p>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>RC Number (Registration Certificate) *</label>
-                <input
-                  name="rcNumber"
-                  value={form.rcNumber}
-                  onChange={handleUpperCase('rcNumber')}
-                  placeholder="e.g. MP09AB1234"
-                  style={inputStyle(errors.rcNumber)}
-                />
+                <input name="rcNumber" value={form.rcNumber} onChange={handleUpperCase('rcNumber')} placeholder="e.g. MP09AB1234" style={inputStyle(errors.rcNumber)} />
                 {errors.rcNumber && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.rcNumber}</p>}
               </div>
-
               <div style={{ marginBottom: '1rem' }}>
                 <label style={labelStyle}>Driving License Number *</label>
-                <input
-                  name="licenseNumber"
-                  value={form.licenseNumber}
-                  onChange={handleUpperCase('licenseNumber')}
-                  placeholder="e.g. MP0920110012345"
-                  style={inputStyle(errors.licenseNumber)}
-                />
+                <input name="licenseNumber" value={form.licenseNumber} onChange={handleUpperCase('licenseNumber')} placeholder="e.g. MP0920110012345" style={inputStyle(errors.licenseNumber)} />
                 {errors.licenseNumber && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.licenseNumber}</p>}
               </div>
-
               <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '0.85rem', marginBottom: '1.5rem' }}>
                 <p style={{ color: '#166534', fontSize: '0.8rem', fontWeight: 600 }}>Your information is 100% safe</p>
-                <p style={{ color: '#166534', fontSize: '0.75rem', marginTop: '4px' }}>
-                  Documents will only be used for verification. They will not be shared with anyone.
-                </p>
+                <p style={{ color: '#166534', fontSize: '0.75rem', marginTop: '4px' }}>Documents will only be used for verification. They will not be shared with anyone.</p>
               </div>
-
               <div style={{ background: '#f5f7ff', borderRadius: '12px', padding: '1rem', marginBottom: '1rem' }}>
-                <p style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>
-                  Registration Summary
-                </p>
-                {[
-                  ['Name', form.name],
-                  ['Phone', form.phone],
-                  ['City', form.city],
-                  ['Vehicle', form.vehicle],
-                  ['Experience', form.experience],
-                ].map(([label, val]) => (
+                <p style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>Registration Summary</p>
+                {[['Name', form.name], ['Phone', form.phone], ['City', form.city], ['Vehicle', form.vehicle], ['Experience', form.experience]].map(([label, val]) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem' }}>
                     <span style={{ color: '#6b7280' }}>{label}</span>
                     <span style={{ fontWeight: 700, color: '#1a1a2e' }}>{val}</span>
@@ -398,7 +331,6 @@ function DriverPartner() {
             </div>
           )}
 
-          {/* Navigation Buttons */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             {step > 1 && (
               <button onClick={() => setStep(step - 1)}

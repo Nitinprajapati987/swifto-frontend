@@ -4,13 +4,13 @@ import Navbar from '../components/Navbar';
 import api from '../services/api';
 
 const STATUS_OPTIONS = [
-  { value: 'confirmed',        label: '✅ Confirmed',          color: '#4361ee' },
-  { value: 'driver_assigned',  label: '👨‍✈️ Driver Assigned',   color: '#7209b7' },
-  { value: 'picked_up',        label: '📦 Picked Up',          color: '#f77f00' },
-  { value: 'in_transit',       label: '🚛 In Transit',         color: '#023e8a' },
-  { value: 'out_for_delivery', label: '🛵 Out for Delivery',   color: '#0077b6' },
-  { value: 'delivered',        label: '🎉 Delivered',          color: '#2d6a4f' },
-  { value: 'cancelled',        label: '❌ Cancelled',          color: '#ef4444' },
+  { value: 'confirmed',        label: 'Confirmed',        color: '#4361ee' },
+  { value: 'driver_assigned',  label: 'Driver Assigned',  color: '#7209b7' },
+  { value: 'picked_up',        label: 'Picked Up',        color: '#f77f00' },
+  { value: 'in_transit',       label: 'In Transit',       color: '#023e8a' },
+  { value: 'out_for_delivery', label: 'Out for Delivery', color: '#0077b6' },
+  { value: 'delivered',        label: 'Delivered',        color: '#2d6a4f' },
+  { value: 'cancelled',        label: 'Cancelled',        color: '#ef4444' },
 ];
 
 export default function Admin() {
@@ -88,8 +88,7 @@ export default function Admin() {
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7ff' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '3rem' }}>⚡</div>
-        <p style={{ color: '#4361ee', fontWeight: 700 }}>Loading Admin Panel...</p>
+        <p style={{ color: '#4361ee', fontWeight: 700, fontSize: '1.2rem' }}>Loading Admin Panel...</p>
       </div>
     </div>
   );
@@ -102,7 +101,7 @@ export default function Admin() {
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: 'Manrope,sans-serif', fontSize: '2rem', fontWeight: 900, color: '#1a1a2e', margin: 0 }}>
-            👨‍💼 Admin Dashboard
+            Admin Dashboard
           </h1>
           <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>SWIFTO Logistics Control Panel</p>
         </div>
@@ -111,13 +110,12 @@ export default function Admin() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             {[
-              { label: 'Total Bookings', value: stats.totalBookings, icon: '📦', color: '#4361ee' },
-              { label: 'Active Bookings', value: stats.activeBookings, icon: '🚛', color: '#f77f00' },
-              { label: 'Delivered', value: stats.deliveredBookings, icon: '✅', color: '#2d6a4f' },
-              { label: 'Total Users', value: stats.totalUsers, icon: '👥', color: '#7209b7' },
+              { label: 'Total Bookings',  value: stats.totalBookings,   color: '#4361ee' },
+              { label: 'Active Bookings', value: stats.activeBookings,  color: '#f77f00' },
+              { label: 'Delivered',       value: stats.deliveredBookings, color: '#2d6a4f' },
+              { label: 'Total Users',     value: stats.totalUsers,      color: '#7209b7' },
             ].map((s, i) => (
               <div key={i} style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', border: `2px solid ${s.color}20`, textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem' }}>{s.icon}</div>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, fontFamily: 'Manrope,sans-serif' }}>{s.value}</div>
                 <div style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '0.25rem' }}>{s.label}</div>
               </div>
@@ -127,7 +125,7 @@ export default function Admin() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-          {[{ key: 'bookings', label: '📦 Bookings' }, { key: 'users', label: '👥 Users' }].map(t => (
+          {[{ key: 'bookings', label: 'Bookings' }, { key: 'users', label: 'Users' }].map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               style={{ padding: '0.6rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
                 background: tab === t.key ? '#4361ee' : 'white',
@@ -139,7 +137,7 @@ export default function Admin() {
           ))}
           <button onClick={fetchAll}
             style={{ marginLeft: 'auto', padding: '0.6rem 1.2rem', borderRadius: '8px', border: '2px solid #4361ee', background: 'white', color: '#4361ee', fontWeight: 700, cursor: 'pointer' }}>
-            🔄 Refresh
+            Refresh
           </button>
         </div>
 
@@ -147,7 +145,7 @@ export default function Admin() {
         {tab === 'bookings' && (
           <div>
             <input
-              placeholder="🔍 Search by name, phone, tracking ID..."
+              placeholder="Search by name, phone, tracking ID..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '10px', border: '2px solid #e8eaff', marginBottom: '1rem', fontSize: '0.95rem', boxSizing: 'border-box' }}
@@ -166,19 +164,19 @@ export default function Admin() {
                           {STATUS_OPTIONS.find(s => s.value === b.status)?.label || b.status}
                         </span>
                       </div>
-                      <p style={{ margin: '0 0 0.25rem', color: '#374151', fontWeight: 600 }}>👤 {b.name} — 📞 {b.phone}</p>
-                      <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.9rem' }}>📍 {b.pickup} → 📦 {b.drop}</p>
-                      <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>🚛 {b.vehicle} | 📅 {b.date}</p>
-                      {b.driverName && <p style={{ margin: '0.25rem 0 0', color: '#7209b7', fontSize: '0.85rem', fontWeight: 600 }}>👨‍✈️ Driver: {b.driverName} — {b.driverPhone}</p>}
+                      <p style={{ margin: '0 0 0.25rem', color: '#374151', fontWeight: 600 }}>Customer: {b.name} — {b.phone}</p>
+                      <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.9rem' }}>Pickup: {b.pickup} — Drop: {b.drop}</p>
+                      <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>Vehicle: {b.vehicle} | Date: {b.date}</p>
+                      {b.driverName && <p style={{ margin: '0.25rem 0 0', color: '#7209b7', fontSize: '0.85rem', fontWeight: 600 }}>Driver: {b.driverName} — {b.driverPhone}</p>}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button onClick={() => { setStatusModal(b); setNewStatus(b.status); }}
                         style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '2px solid #4361ee', background: 'white', color: '#4361ee', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
-                        📝 Status
+                        Update Status
                       </button>
                       <button onClick={() => setDriverModal(b)}
                         style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#7209b7', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
-                        👨‍✈️ Driver
+                        Assign Driver
                       </button>
                     </div>
                   </div>
@@ -194,12 +192,12 @@ export default function Admin() {
             {users.map(u => (
               <div key={u._id} style={{ background: 'white', borderRadius: '16px', padding: '1.25rem 1.5rem', border: '1.5px solid #e8eaff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <p style={{ margin: '0 0 0.25rem', fontWeight: 700, color: '#1a1a2e', fontSize: '1rem' }}>👤 {u.name}</p>
-                  <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.85rem' }}>📧 {u.email} | 📞 {u.phone}</p>
+                  <p style={{ margin: '0 0 0.25rem', fontWeight: 700, color: '#1a1a2e', fontSize: '1rem' }}>{u.name}</p>
+                  <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.85rem' }}>Email: {u.email} | Phone: {u.phone}</p>
                   <p style={{ margin: 0, color: '#6b7280', fontSize: '0.8rem' }}>Joined: {new Date(u.createdAt).toLocaleDateString('en-IN')}</p>
                 </div>
                 <span style={{ background: u.role === 'admin' ? '#4361ee20' : '#f3f4f6', color: u.role === 'admin' ? '#4361ee' : '#6b7280', padding: '0.3rem 0.9rem', borderRadius: '100px', fontWeight: 700, fontSize: '0.8rem' }}>
-                  {u.role === 'admin' ? '👑 Admin' : '👤 User'}
+                  {u.role === 'admin' ? 'Admin' : 'User'}
                 </span>
               </div>
             ))}
@@ -211,7 +209,7 @@ export default function Admin() {
       {statusModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: '420px' }}>
-            <h3 style={{ margin: '0 0 1rem', fontFamily: 'Manrope,sans-serif', color: '#1a1a2e' }}>📝 Update Status — {statusModal.trackingId}</h3>
+            <h3 style={{ margin: '0 0 1rem', fontFamily: 'Manrope,sans-serif', color: '#1a1a2e' }}>Update Status — {statusModal.trackingId}</h3>
             <select value={newStatus} onChange={e => setNewStatus(e.target.value)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '2px solid #e8eaff', fontSize: '0.95rem', marginBottom: '1rem' }}>
               {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -219,7 +217,7 @@ export default function Admin() {
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button onClick={updateStatus}
                 style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#4361ee', color: 'white', fontWeight: 700, cursor: 'pointer' }}>
-                ✅ Update
+                Update
               </button>
               <button onClick={() => setStatusModal(null)}
                 style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: '2px solid #e8eaff', background: 'white', color: '#6b7280', fontWeight: 700, cursor: 'pointer' }}>
@@ -234,7 +232,7 @@ export default function Admin() {
       {driverModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: '420px' }}>
-            <h3 style={{ margin: '0 0 1rem', fontFamily: 'Manrope,sans-serif', color: '#1a1a2e' }}>👨‍✈️ Assign Driver — {driverModal.trackingId}</h3>
+            <h3 style={{ margin: '0 0 1rem', fontFamily: 'Manrope,sans-serif', color: '#1a1a2e' }}>Assign Driver — {driverModal.trackingId}</h3>
             <input placeholder="Driver Name" value={driverForm.driverName}
               onChange={e => setDriverForm({ ...driverForm, driverName: e.target.value })}
               style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '2px solid #e8eaff', fontSize: '0.95rem', marginBottom: '0.75rem', boxSizing: 'border-box' }} />
@@ -244,7 +242,7 @@ export default function Admin() {
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button onClick={assignDriver}
                 style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#7209b7', color: 'white', fontWeight: 700, cursor: 'pointer' }}>
-                ✅ Assign
+                Assign
               </button>
               <button onClick={() => setDriverModal(null)}
                 style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', border: '2px solid #e8eaff', background: 'white', color: '#6b7280', fontWeight: 700, cursor: 'pointer' }}>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// ✅ 3 naye imports add kiye — Bhopal, Dewas, Hyderabad
 import imgAhmedabad from '../assets/logos/cities/ahmedabad.png';
 import imgBangalore from '../assets/logos/cities/bangalore.png';
 import imgBhopal from '../assets/logos/cities/bhopal.png';
@@ -36,21 +35,14 @@ import imgDumper from '../assets/logos/vehicles/dumper.png';
 import imgTanker from '../assets/logos/vehicles/tanker.png';
 import imgTrailer from '../assets/logos/vehicles/trailer.png';
 
-import hero1 from '../assets/logos/hero/hero1.png';
-import hero2 from '../assets/logos/hero/hero2.png';
-import hero3 from '../assets/logos/hero/hero3.png';
-import hero4 from '../assets/logos/hero/hero4.png';
-import hero5 from '../assets/logos/hero/hero5.png';
-import hero6 from '../assets/logos/hero/hero6.png';
-
-const heroImages = [hero1, hero2, hero3, hero4, hero5, hero6];
+import pithampurMap from '../assets/logos/hero/pithampur-map.png';
 
 const cities = [
   { name: 'Indore',      state: 'MP', img: imgIndore },
   { name: 'Pithampur',   state: 'MP', img: imgPithampur },
   { name: 'Ujjain',      state: 'MP', img: imgUjjain },
-  { name: 'Bhopal',      state: 'MP', img: imgBhopal },      // Fixed
-  { name: 'Dewas',       state: 'MP', img: imgDewas },       // Fixed
+  { name: 'Bhopal',      state: 'MP', img: imgBhopal },
+  { name: 'Dewas',       state: 'MP', img: imgDewas },
   { name: 'Mumbai',      state: 'MH', img: imgMumbai },
   { name: 'Pune',        state: 'MH', img: imgPune },
   { name: 'Nagpur',      state: 'MH', img: imgNagpur },
@@ -60,7 +52,7 @@ const cities = [
   { name: 'Ahmedabad',   state: 'GJ', img: imgAhmedabad },
   { name: 'Surat',       state: 'GJ', img: imgSurat },
   { name: 'Vadodara',    state: 'GJ', img: imgVadodara },
-  { name: 'Hyderabad',   state: 'TS', img: imgHyderabad },   // Fixed
+  { name: 'Hyderabad',   state: 'TS', img: imgHyderabad },
   { name: 'Bangalore',   state: 'KA', img: imgBangalore },
   { name: 'Chennai',     state: 'TN', img: imgChennai },
   { name: 'Coimbatore',  state: 'TN', img: imgCoimbatore },
@@ -100,7 +92,7 @@ function CityPopup({ onSelect, onClose }) {
         <div style={{ padding: '1.75rem 1.75rem 1rem', borderBottom: '1px solid #f0f2ff' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#1a1a2e', margin: 0 }}>Select City</h2>
-            <button onClick={onClose} style={{ background: '#f5f7ff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1.1rem', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
+            <button onClick={onClose} style={{ background: '#f5f7ff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
           </div>
           <input autoFocus type="text" placeholder="Search city or state..." value={search} onChange={e => setSearch(e.target.value)}
             style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '12px', border: '1.5px solid #e8eaff', background: '#f5f7ff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif', outline: 'none', color: '#1a1a2e', boxSizing: 'border-box' }}
@@ -139,7 +131,7 @@ function VehiclePopup({ onSelect, onClose, selected }) {
             <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#1a1a2e', margin: '0 0 4px 0' }}>Select Vehicle</h2>
             <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: 0 }}>Select as per your load requirement</p>
           </div>
-          <button onClick={onClose} style={{ background: '#f5f7ff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1.1rem', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>X</button>
+          <button onClick={onClose} style={{ background: '#f5f7ff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>X</button>
         </div>
         <div style={{ overflowY: 'auto', padding: '1.25rem 1.75rem 1.75rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.85rem' }}>
@@ -176,15 +168,7 @@ function Hero() {
   const [showCityPopup, setShowCityPopup] = useState(false);
   const [showVehiclePopup, setShowVehiclePopup] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Indore');
-  const [currentImg, setCurrentImg] = useState(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImg(prev => (prev + 1) % heroImages.length);
-    }, 10000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleSearch = () => {
     if (!pickup || !drop || !vehicle) {
@@ -201,43 +185,44 @@ function Hero() {
       {showCityPopup && <CityPopup onSelect={(c) => { setSelectedCity(c); setPickup(c); setShowCityPopup(false); }} onClose={() => setShowCityPopup(false)} />}
       {showVehiclePopup && <VehiclePopup selected={vehicle} onSelect={(v) => { setVehicle(v); setShowVehiclePopup(false); }} onClose={() => setShowVehiclePopup(false)} />}
 
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '6rem 1.5rem 3rem', position: 'relative', overflow: 'hidden' }}>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        textAlign: 'center', padding: '6rem 1.5rem 3rem',
+        position: 'relative', overflow: 'hidden',
+        backgroundImage: `url(${pithampurMap})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}>
 
-        {heroImages.map((img, i) => (
-          <div key={i} style={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: 'url(' + img + ')', backgroundSize: 'cover', backgroundPosition: 'center', opacity: i === currentImg ? 1 : 0, transition: 'opacity 1.5s ease-in-out' }} />
-        ))}
-
+        {/* Sirf halka dark overlay — map clearly dikhey */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'rgba(0,0,0,0.45)' }} />
 
-        <div style={{ position: 'absolute', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 3 }}>
-          {heroImages.map((_, i) => (
-            <div key={i} onClick={() => setCurrentImg(i)}
-              style={{ width: i === currentImg ? '24px' : '8px', height: '8px', borderRadius: '4px', background: i === currentImg ? 'white' : 'rgba(255,255,255,0.5)', cursor: 'pointer', transition: 'all 0.3s' }} />
-          ))}
-        </div>
-
+        {/* Content */}
         <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '700px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontSize: '0.78rem', fontWeight: 700, padding: '0.4rem 1rem', borderRadius: '100px', marginBottom: '1.5rem', backdropFilter: 'blur(8px)' }}>
-            India's #1 AI-Powered Logistics Platform
+            India's No.1 AI-Powered Logistics Platform
           </div>
-          <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-2px', color: 'white', marginBottom: '1rem', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
+          <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-2px', color: 'white', marginBottom: '1rem', textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
             Fast. Safe. <span style={{ color: '#f59e0b' }}>Reliable.</span>
           </h1>
-          <p style={{ color: '#f59e0b', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.75rem' }}>Fast & Reliable Logistics Across India</p>
+          <p style={{ color: '#f59e0b', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.75rem' }}>Fast and Reliable Logistics Across India</p>
           <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', maxWidth: '560px', margin: '0 auto 2.5rem', lineHeight: 1.65 }}>
-            India's most trusted logistics platform - From Two Wheelers to 40ft Containers, delivered on time.
+            India's most trusted logistics platform — From Two Wheelers to 40ft Containers, delivered on time.
           </p>
 
-          <div style={{ background: 'white', borderRadius: '20px', padding: '1.75rem', boxShadow: '0 8px 48px rgba(0,0,0,0.25)', textAlign: 'left', border: '1px solid rgba(67,97,238,0.08)' }}>
+          {/* Booking Card */}
+          <div style={{ background: 'rgba(194, 185, 185, 0.97)', borderRadius: '20px', padding: '1.75rem', boxShadow: '0 8px 48px rgba(0,0,0,0.3)', textAlign: 'left', border: '1px solid rgba(67,97,238,0.12)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <p style={{ fontSize: '0.72rem', color: '#4361ee', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>Truck Confirmed in 10 Minutes</p>
               <button onClick={() => setShowCityPopup(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#eef0ff', border: '1.5px solid #4361ee', borderRadius: '100px', padding: '0.4rem 0.9rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#eef0ff', border: '1.5px solid #d4ec1f', borderRadius: '100px', padding: '0.4rem 0.9rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#dde3ff'}
                 onMouseLeave={e => e.currentTarget.style.background = '#eef0ff'}
               >
                 <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1a1a2e' }}>{selectedCity}</span>
-                <span style={{ fontSize: '0.7rem', color: '#4361ee' }}>v</span>
+                <span style={{ fontSize: '0.7rem', color: '#4361ee' }}>▾</span>
               </button>
             </div>
 
@@ -249,10 +234,10 @@ function Hero() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 <input type="text" placeholder="Enter pickup address..." value={pickup} onChange={e => setPickup(e.target.value)}
-                  style={{ background: '#f5f7ff', color: '#1a1a2e', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e8eaff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif' }}
+                  style={{ background: '#f5f7ff', color: '#1a1a2e', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e8eaff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' }}
                   onFocus={e => e.target.style.borderColor = '#4361ee'} onBlur={e => e.target.style.borderColor = '#e8eaff'} />
                 <input type="text" placeholder="Enter drop address..." value={drop} onChange={e => setDrop(e.target.value)}
-                  style={{ background: '#f5f7ff', color: '#1a1a2e', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e8eaff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif' }}
+                  style={{ background: '#f5f7ff', color: '#1a1a2e', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e8eaff', fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box' }}
                   onFocus={e => e.target.style.borderColor = '#4361ee'} onBlur={e => e.target.style.borderColor = '#e8eaff'} />
               </div>
             </div>
@@ -268,26 +253,26 @@ function Hero() {
                 {selectedVehicle ? (
                   <img src={selectedVehicle.img} alt={selectedVehicle.label} style={{ width: '36px', height: '28px', objectFit: 'contain' }} />
                 ) : (
-                  <span style={{ fontSize: '1.3rem' }}></span>
+                  <span style={{ fontSize: '0.9rem', color: '#cbced3' }}>Select vehicle</span>
                 )}
                 <span style={{ fontSize: '0.9rem', fontWeight: 600, color: vehicle ? '#1a1a2e' : '#9ca3af' }}>
                   {vehicle ? selectedVehicle.label : 'Select vehicle type...'}
                 </span>
               </div>
-              <span style={{ color: '#4361ee', fontSize: '0.8rem' }}>v</span>
+              <span style={{ color: '#4361ee', fontSize: '0.8rem' }}>▾</span>
             </button>
 
             <button onClick={handleSearch}
-              style={{ background: '#4361ee', color: 'white', width: '100%', padding: '1rem', borderRadius: '12px', fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(67,97,238,0.35)', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.target.style.background = '#3451d1'; e.target.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { e.target.style.background = '#4361ee'; e.target.style.transform = 'translateY(0)'; }}>
+              style={{ background: 'linear-gradient(135deg, #f0c419, #eab308)', color: 'white', width: '100%', padding: '1rem', borderRadius: '12px', fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(189, 230, 43, 0.4)', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 6px 24px rgba(67,97,238,0.5)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 20px rgba(62, 27, 237, 0.4)'; }}>
               Get Best Price
             </button>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '0.75rem', fontSize: '0.72rem', color: '#6b7280' }}>
-              <span>No Hidden Charges</span>
-              <span>10 Min Confirmation</span>
-              <span>24hr Support</span>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.75rem', fontSize: '0.72rem', color: '#6b7280' }}>
+              <span>✓ No Hidden Charges</span>
+              <span>✓ 10 Min Confirmation</span>
+              <span>✓ 24hr Support</span>
             </div>
           </div>
         </div>
