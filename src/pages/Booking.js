@@ -1,24 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { bookingAPI } from '../services/api';
-import phonePeQR from '../assets/logos/phonepe-qr.png';
+
+const vehicles = [
+  '7 ft Truck','8 ft Truck','10 ft Truck','12 ft Truck','14 ft Truck',
+  '19 ft Truck','20 ft Truck','22 ft Truck','24 ft Truck',
+  '28 ft Truck','30 ft Truck','32 ft Truck',
+  '20 ft Container','32 ft Single Axle','32 ft Multi Axle','40 ft Container',
+  'Dumper','Trailer (40-50 ft)','Flatbed','Tanker',
+  'Two Wheeler','Car / Sedan',
+];
+
+const userTypes = [
+  { val: 'company',    label: 'Company / Factory' },
+  { val: 'individual', label: 'Individual' },
+];
+
+const BG = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
 
 function Booking() {
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
-    pickup:  searchParams.get('pickup')  || '',
-    drop:    searchParams.get('drop')    || '',
-    vehicle: searchParams.get('vehicle') || '',
-    date: '', goods: '', weight: '', userType: 'company',
+    pickup: '', drop: '', vehicle: '',
+    date: '', goods: '', weight: '',
+    userType: 'company', amount: '',
   });
-  const [errors, setErrors]       = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [trackingId, setTrackingId] = useState('');
-  const [apiError, setApiError]   = useState('');
-  const [paymentDone, setPaymentDone] = useState(false);
+  const [errors, setErrors]     = useState({});
+  const [loading, setLoading]   = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [success, setSuccess]   = useState(null);
+
+  useEffect(() => {
+    const pickup  = searchParams.get('pickup')  || '';
+    const drop    = searchParams.get('drop')    || '';
+    const vehicle = searchParams.get('vehicle') || '';
+    setForm(prev => ({ ...prev, pickup, drop, vehicle }));
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,25 +47,27 @@ function Booking() {
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())   e.name   = 'Name is required';
-    if (!form.phone.trim())  e.phone  = 'Phone is required';
-    else if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Enter a valid 10-digit number';
-    if (!form.pickup.trim()) e.pickup = 'Pickup location is required';
-    if (!form.drop.trim())   e.drop   = 'Drop location is required';
-    if (!form.vehicle)       e.vehicle = 'Please select a vehicle';
-    if (!form.date)          e.date   = 'Date is required';
+    if (!form.name.trim())  e.name  = 'Name is required';
+    if (!form.phone.trim()) e.phone = 'Phone number is required';
+    else if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, '')))
+      e.phone = 'Enter a valid 10-digit Indian number';
+    if (!form.pickup.trim())  e.pickup  = 'Pickup location is required';
+    if (!form.drop.trim())    e.drop    = 'Drop location is required';
+    if (!form.vehicle)        e.vehicle = 'Please select a vehicle';
+    if (!form.date)           e.date    = 'Please select a date';
+    if (!form.amount.trim())  e.amount  = 'Please enter the amount';
+    else if (isNaN(form.amount) || Number(form.amount) <= 0)
+      e.amount = 'Enter a valid amount';
     return e;
   };
 
   const handleSubmit = async () => {
     const newErrors = validate();
-    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); window.scrollTo({ top: 200, behavior: 'smooth' }); return; }
-    setLoading(true);
-    setApiError('');
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
+    setLoading(true); setApiError('');
     try {
       const res = await bookingAPI.create(form);
-      setTrackingId(res.data.trackingId);
-      setSubmitted(true);
+      setSuccess({ trackingId: res.data.trackingId });
     } catch (err) {
       setApiError(err.response?.data?.message || 'Booking failed. Please try again.');
     } finally {
@@ -55,241 +76,236 @@ function Booking() {
   };
 
   const inputStyle = (hasError) => ({
-    background: '#f5f7ff', color: '#1a1a2e',
-    padding: '0.85rem 1rem', borderRadius: '10px', width: '100%',
-    outline: 'none', border: `1.5px solid ${hasError ? '#ef4444' : '#e8eaff'}`,
-    fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s',
+    width: '100%', padding: '0.85rem 1rem', borderRadius: '10px',
+    border: `1.5px solid ${hasError ? '#ef4444' : 'rgba(255,255,255,0.15)'}`,
+    fontSize: '0.9rem', outline: 'none', color: 'white',
+    background: 'rgba(255,255,255,0.08)', boxSizing: 'border-box',
+    fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s',
   });
 
-  const labelStyle = { fontSize: '0.75rem', color: '#6b7280', display: 'block', marginBottom: '6px', fontWeight: 600 };
+  const labelStyle = {
+    fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)',
+    display: 'block', marginBottom: '6px', fontWeight: 600,
+    textTransform: 'uppercase', letterSpacing: '0.5px',
+  };
 
-  if (submitted) {
+  // SUCCESS SCREEN
+  if (success) {
     return (
-      <div style={{ background: 'linear-gradient(160deg, #bcc8f0 0%, #c5d0f5 50%, #aebde8 100%)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: BG, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Navbar />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '6rem 1.5rem 2rem' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6rem 1.5rem 2rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '3rem 2.5rem', maxWidth: '520px', width: '100%' }}>
 
-          <div style={{ width: '72px', height: '72px', background: '#22c55e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-            <span style={{ color: 'white', fontSize: '2rem', fontWeight: 900 }}>✓</span>
-          </div>
-
-          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '2.5rem', fontWeight: 900, color: '#1a1a2e', marginBottom: '0.5rem' }}>Booking Confirmed!</h2>
-          <p style={{ color: '#374151', fontSize: '1.05rem', marginBottom: '0.25rem' }}>Thank you, <strong>{form.name}</strong>!</p>
-          <p style={{ color: '#6b7280', marginBottom: '2rem' }}>Our team will contact you at <strong style={{ color: '#4361ee' }}>{form.phone}</strong> shortly.</p>
-
-          {/* Booking Details */}
-          <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem 2rem', textAlign: 'left', width: '100%', maxWidth: '420px', border: '1px solid rgba(67,97,238,0.1)', boxShadow: '0 4px 24px rgba(67,97,238,0.12)', marginBottom: '1.5rem' }}>
-            <p style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '1rem' }}>Booking Details</p>
-            {[
-              ['Tracking ID', trackingId, true],
-              ['Pickup',      form.pickup,  false],
-              ['Drop',        form.drop,    false],
-              ['Vehicle',     form.vehicle, false],
-              ['Date',        form.date,    false],
-            ].map(([label, val, highlight]) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem', fontSize: '0.875rem' }}>
-                <span style={{ color: '#6b7280' }}>{label}</span>
-                <span style={{ fontWeight: 700, color: highlight ? '#4361ee' : '#1a1a2e' }}>{val}</span>
+            {/* Status Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.75rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#10b981' }} />
               </div>
-            ))}
-          </div>
-
-          {/* PhonePe Payment Section */}
-          <div style={{ background: 'white', borderRadius: '20px', padding: '1.5rem 2rem', width: '100%', maxWidth: '420px', border: '2px solid #5f259f', boxShadow: '0 4px 24px rgba(95,37,159,0.15)', marginBottom: '1.5rem', textAlign: 'center' }}>
-            <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: '#5f259f', margin: '0 0 0.5rem', fontSize: '1.2rem' }}>Pay via PhonePe</h3>
-            <p style={{ color: '#6b7280', fontSize: '0.82rem', marginBottom: '1rem' }}>Scan to pay advance — remaining amount on delivery</p>
-
-            <div style={{ background: '#f3f0ff', borderRadius: '16px', padding: '1rem', marginBottom: '1rem', display: 'inline-block' }}>
-              <img src={phonePeQR} alt="PhonePe QR Code" style={{ width: '180px', height: '180px', borderRadius: '12px', display: 'block' }} />
+              <div>
+                <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.4rem', fontWeight: 900, color: 'white', margin: 0 }}>Booking Confirmed</h2>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.82rem', margin: '2px 0 0' }}>Your shipment has been registered successfully</p>
+              </div>
             </div>
 
-            <p style={{ color: '#5f259f', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Works with PhonePe, Google Pay, and Paytm
-            </p>
+            {/* Tracking ID */}
+            <div style={{ background: 'rgba(230,57,70,0.08)', border: '1px solid rgba(230,57,70,0.2)', borderRadius: '14px', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>Tracking ID</p>
+              <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.8rem', fontWeight: 900, color: '#e63946', letterSpacing: '4px', margin: 0 }}>{success.trackingId}</p>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginTop: '8px' }}>Keep this ID to track your shipment status</p>
+            </div>
 
-            {!paymentDone ? (
-              <button onClick={() => setPaymentDone(true)}
-                style={{ width: '100%', padding: '0.85rem', borderRadius: '12px', border: 'none', background: '#5f259f', color: 'white', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(95,37,159,0.3)' }}>
-                I Have Completed Payment
-              </button>
-            ) : (
-              <div style={{ background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '12px', padding: '0.85rem', color: '#16a34a', fontWeight: 700, fontSize: '0.95rem' }}>
-                Payment Confirmed! Our team will contact you shortly.
-              </div>
-            )}
-          </div>
+            {/* Info Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.75rem' }}>
+              {[
+                ['Response Time',  '10 Minutes'],
+                ['Driver Assignment', 'Same Day'],
+                ['Live Tracking',  'Available'],
+                ['WhatsApp Updates', 'Enabled'],
+              ].map(([label, val]) => (
+                <div key={label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.85rem 1rem', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{label}</p>
+                  <p style={{ fontSize: '0.88rem', fontWeight: 700, color: 'white', margin: 0 }}>{val}</p>
+                </div>
+              ))}
+            </div>
 
-          <p style={{ color: '#6b7280', fontSize: '0.82rem', marginBottom: '1.5rem' }}>Please save your Tracking ID to track your order.</p>
-
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button onClick={() => { setSubmitted(false); setPaymentDone(false); setForm({ name: '', phone: '', email: '', pickup: '', drop: '', vehicle: '', date: '', goods: '', weight: '', userType: 'company' }); }}
-              style={{ background: '#4361ee', color: 'white', padding: '0.85rem 2rem', borderRadius: '100px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(67,97,238,0.3)' }}>
-              New Booking
-            </button>
-            <Link to="/tracking">
-              <button style={{ background: 'white', color: '#4361ee', padding: '0.85rem 2rem', borderRadius: '100px', fontWeight: 700, border: '1.5px solid #4361ee', cursor: 'pointer' }}>
-                Track Order
-              </button>
-            </Link>
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <a href="/tracking" style={{ flex: 1, textDecoration: 'none' }}>
+                <button style={{ width: '100%', background: '#e63946', color: 'white', border: 'none', borderRadius: '10px', padding: '0.9rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'Manrope, sans-serif' }}>
+                  Track Shipment
+                </button>
+              </a>
+              <a href="/" style={{ flex: 1, textDecoration: 'none' }}>
+                <button style={{ width: '100%', background: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '0.9rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
+                  Return Home
+                </button>
+              </a>
+            </div>
           </div>
         </div>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&display=swap');`}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ background: 'linear-gradient(160deg, #bcc8f0 0%, #c5d0f5 50%, #aebde8 100%)', minHeight: '100vh', paddingBottom: '3rem', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '400px', height: '400px', background: 'rgba(245,240,225,0.7)', borderRadius: '50%', pointerEvents: 'none' }} />
+    <div style={{ background: BG, minHeight: '100vh', paddingBottom: '3rem', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '400px', height: '400px', background: 'rgba(230,57,70,0.05)', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-80px', right: '-80px', width: '350px', height: '350px', background: 'rgba(255,255,255,0.02)', borderRadius: '50%', pointerEvents: 'none' }} />
+
       <Navbar />
+
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '7rem 1.5rem 2rem', position: 'relative', zIndex: 1 }}>
+
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '2.5rem', fontWeight: 900, color: '#1a1a2e', letterSpacing: '-1px', marginBottom: '0.5rem' }}>Book a <span style={{ color: '#4361ee' }}>Delivery</span></h2>
-          <p style={{ color: '#374151', fontSize: '1rem' }}>Fill in the details — our team will contact you immediately!</p>
+          <p style={{ color: '#e63946', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Logistics Booking</p>
+          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '2.4rem', fontWeight: 900, color: 'white', letterSpacing: '-1px', marginBottom: '0.5rem' }}>
+            Book a <span style={{ color: '#e63946' }}>Delivery</span>
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.95rem' }}>Our team will contact you within 10 minutes of submission</p>
         </div>
 
-        <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', boxShadow: '0 8px 48px rgba(67,97,238,0.15)', border: '1px solid rgba(67,97,238,0.08)' }}>
+        <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '20px', padding: '2rem', boxShadow: '0 8px 48px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)' }}>
 
           {apiError && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '0.85rem 1rem', marginBottom: '1rem', color: '#dc2626', fontSize: '0.85rem' }}>
+            <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '10px', padding: '0.85rem', marginBottom: '1rem', color: '#fca5a5', fontSize: '0.85rem' }}>
               {apiError}
             </div>
           )}
 
-          <div style={{ marginBottom: '1.25rem' }}>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem', fontWeight: 600 }}>Who are you?</p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {[{ val: 'company', label: 'Company / Factory' }, { val: 'individual', label: 'Individual' }].map(t => (
+          {/* User Type */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={labelStyle}>Customer Type</label>
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '4px', gap: '4px' }}>
+              {userTypes.map(t => (
                 <button key={t.val} onClick={() => setForm({ ...form, userType: t.val })}
-                  style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', background: form.userType === t.val ? '#4361ee' : '#f5f7ff', color: form.userType === t.val ? 'white' : '#374151', border: `1.5px solid ${form.userType === t.val ? '#4361ee' : '#e8eaff'}` }}>
+                  style={{
+                    flex: 1, padding: '10px', border: 'none', borderRadius: '8px',
+                    cursor: 'pointer', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s',
+                    background: form.userType === t.val ? '#e63946' : 'transparent',
+                    color: form.userType === t.val ? 'white' : 'rgba(255,255,255,0.45)',
+                  }}>
                   {t.label}
                 </button>
               ))}
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          {/* Name */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={labelStyle}>Full Name / Company Name *</label>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name or company name" style={inputStyle(errors.name)}
+              onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = errors.name ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+            {errors.name && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.name}</p>}
+          </div>
+
+          {/* Phone + Email */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
             <div>
-              <label style={labelStyle}>Full Name *</label>
-              <input name="name" value={form.name} onChange={handleChange}
-                placeholder={form.userType === 'company' ? 'Company name' : 'Your name'}
-                style={inputStyle(errors.name)}
-                onFocus={e => e.target.style.borderColor = '#4361ee'}
-                onBlur={e => e.target.style.borderColor = errors.name ? '#ef4444' : '#e8eaff'} />
-              {errors.name && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.name}</p>}
+              <label style={labelStyle}>Mobile Number *</label>
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="9876543210" maxLength={10} style={inputStyle(errors.phone)}
+                onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = errors.phone ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+              {errors.phone && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.phone}</p>}
             </div>
             <div>
-              <label style={labelStyle}>Phone *</label>
-              <input name="phone" value={form.phone} onChange={handleChange}
-                placeholder="9876543210" maxLength={10}
-                style={inputStyle(errors.phone)}
-                onFocus={e => e.target.style.borderColor = '#4361ee'}
-                onBlur={e => e.target.style.borderColor = errors.phone ? '#ef4444' : '#e8eaff'} />
-              {errors.phone && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.phone}</p>}
+              <label style={labelStyle}>Email Address (Optional)</label>
+              <input name="email" value={form.email} onChange={handleChange} placeholder="your@email.com" style={inputStyle(false)}
+                onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'} />
             </div>
           </div>
 
+          {/* Pickup */}
           <div style={{ marginBottom: '1rem' }}>
             <label style={labelStyle}>Pickup Location *</label>
-            <input name="pickup" value={form.pickup} onChange={handleChange}
-              placeholder="Full pickup address"
-              style={inputStyle(errors.pickup)}
-              onFocus={e => e.target.style.borderColor = '#4361ee'}
-              onBlur={e => e.target.style.borderColor = errors.pickup ? '#ef4444' : '#e8eaff'} />
-            {errors.pickup && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.pickup}</p>}
+            <input name="pickup" value={form.pickup} onChange={handleChange} placeholder="e.g. Pithampur, Indore" style={inputStyle(errors.pickup)}
+              onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = errors.pickup ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+            {errors.pickup && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.pickup}</p>}
           </div>
 
+          {/* Drop */}
           <div style={{ marginBottom: '1rem' }}>
             <label style={labelStyle}>Drop Location *</label>
-            <input name="drop" value={form.drop} onChange={handleChange}
-              placeholder="Full drop address"
-              style={inputStyle(errors.drop)}
-              onFocus={e => e.target.style.borderColor = '#4361ee'}
-              onBlur={e => e.target.style.borderColor = errors.drop ? '#ef4444' : '#e8eaff'} />
-            {errors.drop && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.drop}</p>}
+            <input name="drop" value={form.drop} onChange={handleChange} placeholder="e.g. Mumbai, Maharashtra" style={inputStyle(errors.drop)}
+              onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = errors.drop ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+            {errors.drop && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.drop}</p>}
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={labelStyle}>Vehicle Type *</label>
-            <select name="vehicle" value={form.vehicle} onChange={handleChange}
-              style={{ ...inputStyle(errors.vehicle), cursor: 'pointer', appearance: 'auto' }}>
-              <option value="">Select vehicle...</option>
-              <optgroup label="Light Vehicles">
-                <option value="Two Wheeler">Two Wheeler</option>
-                <option value="Car / Sedan">Car / Sedan</option>
-              </optgroup>
-              <optgroup label="Small Trucks">
-                <option value="7 ft Truck">7 ft Truck</option>
-                <option value="10 ft Truck">10 ft Truck</option>
-                <option value="14 ft Truck">14 ft Truck</option>
-              </optgroup>
-              <optgroup label="Medium Trucks">
-                <option value="19 ft Truck">19 ft Truck</option>
-                <option value="22 ft Truck">22 ft Truck</option>
-                <option value="24 ft Truck">24 ft Truck</option>
-              </optgroup>
-              <optgroup label="Heavy Trucks">
-                <option value="28 ft Truck">28 ft Truck</option>
-                <option value="32 ft Truck">32 ft Truck</option>
-              </optgroup>
-              <optgroup label="Containers">
-                <option value="20 ft Container">20 ft Container</option>
-                <option value="40 ft Container">40 ft Container</option>
-              </optgroup>
-              <optgroup label="Special">
-                <option value="Dumper">Dumper</option>
-                <option value="Tanker">Tanker</option>
-                <option value="Trailer">Trailer</option>
-              </optgroup>
-            </select>
-            {errors.vehicle && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.vehicle}</p>}
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          {/* Vehicle + Date */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={labelStyle}>Vehicle Type *</label>
+              <select name="vehicle" value={form.vehicle} onChange={handleChange} style={{ ...inputStyle(errors.vehicle), cursor: 'pointer' }}>
+                <option value="" style={{ background: '#1a1a2e' }}>Select vehicle</option>
+                {vehicles.map(v => <option key={v} value={v} style={{ background: '#1a1a2e' }}>{v}</option>)}
+              </select>
+              {errors.vehicle && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.vehicle}</p>}
+            </div>
             <div>
               <label style={labelStyle}>Pickup Date *</label>
               <input type="date" name="date" value={form.date} onChange={handleChange}
                 min={new Date().toISOString().split('T')[0]}
-                style={inputStyle(errors.date)}
-                onFocus={e => e.target.style.borderColor = '#4361ee'}
-                onBlur={e => e.target.style.borderColor = errors.date ? '#ef4444' : '#e8eaff'} />
-              {errors.date && <p style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '4px' }}>{errors.date}</p>}
+                style={{ ...inputStyle(errors.date), colorScheme: 'dark' }}
+                onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = errors.date ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+              {errors.date && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.date}</p>}
+            </div>
+          </div>
+
+          {/* Goods + Weight */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={labelStyle}>Goods Type</label>
+              <input name="goods" value={form.goods} onChange={handleChange} placeholder="e.g. Auto Parts, FMCG" style={inputStyle(false)}
+                onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'} />
             </div>
             <div>
-              <label style={labelStyle}>Approx Weight</label>
-              <input name="weight" value={form.weight} onChange={handleChange}
-                placeholder="e.g. 500 kg, 2 ton"
-                style={inputStyle(false)}
-                onFocus={e => e.target.style.borderColor = '#4361ee'}
-                onBlur={e => e.target.style.borderColor = '#e8eaff'} />
+              <label style={labelStyle}>Weight / Quantity</label>
+              <input name="weight" value={form.weight} onChange={handleChange} placeholder="e.g. 500 kg, 2 ton" style={inputStyle(false)}
+                onFocus={e => e.target.style.borderColor = '#e63946'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'} />
             </div>
           </div>
 
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label style={labelStyle}>Goods Description</label>
-            <textarea name="goods" value={form.goods} onChange={handleChange}
-              placeholder="What are you shipping — furniture, machinery, FMCG..."
-              rows={3}
-              style={{ ...inputStyle(false), resize: 'none' }}
-              onFocus={e => e.target.style.borderColor = '#4361ee'}
-              onBlur={e => e.target.style.borderColor = '#e8eaff'} />
-          </div>
-
-          <div style={{ background: '#eef0ff', border: '1px solid rgba(67,97,238,0.2)', borderRadius: '12px', padding: '1rem', fontSize: '0.82rem', color: '#3451d1', marginBottom: '1.25rem' }}>
-            <strong>Note:</strong> After submitting, our team will call you within 10 minutes to confirm the final price.
+          {/* Amount */}
+          <div style={{ marginBottom: '1.75rem' }}>
+            <label style={labelStyle}>Agreed Freight Amount (Rs.) *</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#e63946', fontWeight: 800, fontSize: '1rem', pointerEvents: 'none' }}>₹</span>
+              <input name="amount" value={form.amount} onChange={handleChange} placeholder="Enter agreed amount" type="number" min="0"
+                style={{ ...inputStyle(errors.amount), paddingLeft: '2.2rem' }}
+                onFocus={e => e.target.style.borderColor = '#e63946'}
+                onBlur={e => e.target.style.borderColor = errors.amount ? '#ef4444' : 'rgba(255,255,255,0.15)'} />
+            </div>
+            {errors.amount && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.amount}</p>}
+            <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>Freight amount as agreed with the SWIFTO team</p>
           </div>
 
           <button onClick={handleSubmit} disabled={loading}
-            style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1rem', cursor: loading ? 'not-allowed' : 'pointer', background: loading ? '#7a90f0' : '#4361ee', color: 'white', boxShadow: '0 4px 16px rgba(67,97,238,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            {loading ? (
-              <><svg style={{ animation: 'spin 1s linear infinite', width: '18px', height: '18px' }} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg>Processing...</>
-            ) : 'Submit Booking'}
+            style={{
+              width: '100%', padding: '14px', border: 'none', borderRadius: '10px',
+              fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '1rem',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              background: loading ? 'rgba(230,57,70,0.5)' : '#e63946',
+              color: 'white', transition: 'background 0.2s',
+              boxShadow: '0 4px 20px rgba(230,57,70,0.3)',
+              letterSpacing: '0.3px',
+            }}>
+            {loading ? 'Processing Booking...' : 'Confirm Booking'}
           </button>
+
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', marginTop: '1rem' }}>
+            By confirming, you agree to SWIFTO's terms and conditions.
+          </p>
         </div>
       </div>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        input::placeholder, textarea::placeholder { color: #9ca3af; }
+        input::placeholder { color: rgba(255,255,255,0.25) !important; }
+        select option { background: #1a1a2e; color: white; }
+        input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
+        input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; }
       `}</style>
     </div>
   );

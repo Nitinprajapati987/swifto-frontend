@@ -15,9 +15,12 @@ api.interceptors.request.use((config) => {
 });
 
 export const authAPI = {
-  register: (data) => api.post('/api/auth/register', data),
-  login:    (data) => api.post('/api/auth/login', data),
-  getMe:    ()     => api.get('/api/auth/me'),
+  register:     (data) => api.post('/api/auth/register', data),
+  login:        (data) => api.post('/api/auth/login', data),
+  loginWithOTP: (data) => api.post('/api/auth/login-otp', data), // ✅ NEW
+  getMe:        ()     => api.get('/api/auth/me'),
+  sendOTP:      (data) => api.post('/api/auth/send-otp', data),
+  verifyOTP:    (data) => api.post('/api/auth/verify-otp', data),
 };
 
 export const bookingAPI = {

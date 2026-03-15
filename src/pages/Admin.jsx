@@ -15,16 +15,25 @@ const STATUS_OPTIONS = [
 
 export default function Admin() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('bookings');
-  const [stats, setStats] = useState(null);
+  const [tab, setTab]           = useState('bookings');
+  const [stats, setStats]       = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [driverModal, setDriverModal] = useState(null);
-  const [driverForm, setDriverForm] = useState({ driverName: '', driverPhone: '' });
-  const [statusModal, setStatusModal] = useState(null);
-  const [newStatus, setNewStatus] = useState('');
+  const [users, setUsers]       = useState([]);
+  const [drivers, setDrivers]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [search, setSearch]     = useState('');
+
+  // Modals
+  const [driverModal, setDriverModal]   = useState(null);
+  const [driverForm, setDriverForm]     = useState({ driverName: '', driverPhone: '' });
+  const [statusModal, setStatusModal]   = useState(null);
+  const [newStatus, setNewStatus]       = useState('');
+
+  // ✅ NEW — Dispatch modal (send booking to matching drivers)
+  const [dispatchModal, setDispatchModal]       = useState(null); // booking object
+  const [matchingDrivers, setMatchingDrivers]   = useState([]);
+  const [dispatchLoading, setDispatchLoading]   = useState(false);
+  const [dispatchSuccess, setDispatchSuccess]   = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('swifto_token');
@@ -40,14 +49,16 @@ export default function Admin() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [s, b, u] = await Promise.all([
+      const [s, b, u, d] = await Promise.all([
         api.get('/api/admin/stats'),
         api.get('/api/admin/bookings'),
         api.get('/api/admin/users'),
+        api.get('/api/admin/drivers'),
       ]);
       setStats(s.data);
       setBookings(b.data.bookings);
       setUsers(u.data.users);
+      setDrivers(d.data.drivers);
     } catch (err) {
       alert('Fetch failed: ' + (err.response?.data?.message || err.message));
     }
@@ -77,6 +88,55 @@ export default function Admin() {
     }
   };
 
+  // ✅ Find matching drivers based on booking route
+  const openDispatchModal = (booking) => {
+    setDispatchModal(booking);
+    setDispatchSuccess('');
+
+    // Match drivers whose routes include the booking's drop city
+    const dropCity = booking.drop?.toLowerCase() || '';
+    const pickupCity = booking.pickup?.toLowerCase() || '';
+
+    const matched = drivers.filter(driver => {
+      if (!driver.routes || driver.routes.length === 0) return false;
+      return driver.routes.some(route => {
+        const routeLower = route.toLowerCase();
+        return (
+          routeLower.includes(dropCity.split(',')[0]) ||
+          routeLower.includes(pickupCity.split(',')[0]) ||
+          routeLower === 'pan india'
+        );
+      });
+    });
+
+    setMatchingDrivers(matched);
+  };
+
+  // ✅ Send dispatch notification to a driver
+  const sendDispatch = async (driver) => {
+    setDispatchLoading(true);
+    setDispatchSuccess('');
+    try {
+      await api.post('/api/admin/dispatch', {
+        driverId:   driver._id,
+        bookingId:  dispatchModal._id,
+        trackingId: dispatchModal.trackingId,
+        driverPhone: driver.phone,
+        driverName:  driver.name,
+        pickup:  dispatchModal.pickup,
+        drop:    dispatchModal.drop,
+        vehicle: dispatchModal.vehicle,
+        date:    dispatchModal.date,
+        customerName:  dispatchModal.name,
+        customerPhone: dispatchModal.phone,
+      });
+      setDispatchSuccess(`✅ Notification sent to ${driver.name} via WhatsApp & Email!`);
+    } catch (err) {
+      alert('Dispatch failed: ' + (err.response?.data?.message || err.message));
+    }
+    setDispatchLoading(false);
+  };
+
   const filteredBookings = bookings.filter(b =>
     b.trackingId?.toLowerCase().includes(search.toLowerCase()) ||
     b.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -87,9 +147,7 @@ export default function Admin() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7ff' }}>
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ color: '#4361ee', fontWeight: 700, fontSize: '1.2rem' }}>Loading Admin Panel...</p>
-      </div>
+      <p style={{ color: '#4361ee', fontWeight: 700, fontSize: '1.2rem' }}>Loading Admin Panel...</p>
     </div>
   );
 
@@ -100,9 +158,7 @@ export default function Admin() {
 
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Manrope,sans-serif', fontSize: '2rem', fontWeight: 900, color: '#1a1a2e', margin: 0 }}>
-            Admin Dashboard
-          </h1>
+          <h1 style={{ fontFamily: 'Manrope,sans-serif', fontSize: '2rem', fontWeight: 900, color: '#1a1a2e', margin: 0 }}>Admin Dashboard</h1>
           <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>SWIFTO Logistics Control Panel</p>
         </div>
 
@@ -110,10 +166,11 @@ export default function Admin() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             {[
-              { label: 'Total Bookings',  value: stats.totalBookings,   color: '#4361ee' },
-              { label: 'Active Bookings', value: stats.activeBookings,  color: '#f77f00' },
+              { label: 'Total Bookings',  value: stats.totalBookings,    color: '#4361ee' },
+              { label: 'Active Bookings', value: stats.activeBookings,   color: '#f77f00' },
               { label: 'Delivered',       value: stats.deliveredBookings, color: '#2d6a4f' },
-              { label: 'Total Users',     value: stats.totalUsers,      color: '#7209b7' },
+              { label: 'Total Users',     value: stats.totalUsers,       color: '#7209b7' },
+              { label: 'Total Drivers',   value: stats.totalDrivers,     color: '#0077b6' },
             ].map((s, i) => (
               <div key={i} style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', border: `2px solid ${s.color}20`, textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, fontFamily: 'Manrope,sans-serif' }}>{s.value}</div>
@@ -124,13 +181,17 @@ export default function Admin() {
         )}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-          {[{ key: 'bookings', label: 'Bookings' }, { key: 'users', label: 'Users' }].map(t => (
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          {[
+            { key: 'bookings', label: 'Bookings' },
+            { key: 'users',    label: 'Users' },
+            { key: 'drivers',  label: 'Drivers' },
+          ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               style={{ padding: '0.6rem 1.5rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
                 background: tab === t.key ? '#4361ee' : 'white',
-                color: tab === t.key ? 'white' : '#6b7280',
-                boxShadow: tab === t.key ? '0 4px 12px rgba(67,97,238,0.3)' : 'none',
+                color:      tab === t.key ? 'white' : '#6b7280',
+                boxShadow:  tab === t.key ? '0 4px 12px rgba(67,97,238,0.3)' : 'none',
               }}>
               {t.label}
             </button>
@@ -141,7 +202,7 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* Bookings Tab */}
+        {/* BOOKINGS TAB */}
         {tab === 'bookings' && (
           <div>
             <input
@@ -167,9 +228,15 @@ export default function Admin() {
                       <p style={{ margin: '0 0 0.25rem', color: '#374151', fontWeight: 600 }}>Customer: {b.name} — {b.phone}</p>
                       <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.9rem' }}>Pickup: {b.pickup} — Drop: {b.drop}</p>
                       <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>Vehicle: {b.vehicle} | Date: {b.date}</p>
+                      {b.amount && <p style={{ margin: '0.25rem 0 0', color: '#2d6a4f', fontSize: '0.85rem', fontWeight: 600 }}>Amount: ₹{b.amount}</p>}
                       {b.driverName && <p style={{ margin: '0.25rem 0 0', color: '#7209b7', fontSize: '0.85rem', fontWeight: 600 }}>Driver: {b.driverName} — {b.driverPhone}</p>}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {/* ✅ NEW Dispatch Button */}
+                      <button onClick={() => openDispatchModal(b)}
+                        style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#22c55e', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
+                        🚛 Dispatch
+                      </button>
                       <button onClick={() => { setStatusModal(b); setNewStatus(b.status); }}
                         style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '2px solid #4361ee', background: 'white', color: '#4361ee', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
                         Update Status
@@ -186,7 +253,7 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Users Tab */}
+        {/* USERS TAB */}
         {tab === 'users' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {users.map(u => (
@@ -203,9 +270,101 @@ export default function Admin() {
             ))}
           </div>
         )}
+
+        {/* DRIVERS TAB */}
+        {tab === 'drivers' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {drivers.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>No drivers registered yet</div>
+            )}
+            {drivers.map(d => (
+              <div key={d._id} style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', border: '1.5px solid #e8eaff', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <p style={{ margin: '0 0 0.25rem', fontWeight: 800, color: '#1a1a2e', fontSize: '1rem', fontFamily: 'Manrope,sans-serif' }}>{d.name}</p>
+                    <p style={{ margin: '0 0 0.25rem', color: '#6b7280', fontSize: '0.85rem' }}>Phone: {d.phone} | City: {d.city}</p>
+                    <p style={{ margin: '0 0 0.5rem', color: '#6b7280', fontSize: '0.85rem' }}>Vehicle: {d.vehicle} | Experience: {d.experience}</p>
+                    {d.routes && d.routes.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {d.routes.map(r => (
+                          <span key={r} style={{ background: '#eef0ff', color: '#4361ee', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '100px', fontWeight: 600 }}>{r}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <span style={{
+                    background: d.status === 'verified' ? '#dcfce7' : d.status === 'rejected' ? '#fee2e2' : '#fef9c3',
+                    color: d.status === 'verified' ? '#166534' : d.status === 'rejected' ? '#dc2626' : '#854d0e',
+                    padding: '0.3rem 0.9rem', borderRadius: '100px', fontWeight: 700, fontSize: '0.8rem', textTransform: 'capitalize'
+                  }}>
+                    {d.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Status Modal */}
+      {/* ✅ DISPATCH MODAL */}
+      {dispatchModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: '520px', maxHeight: '85vh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 0.5rem', fontFamily: 'Manrope,sans-serif', color: '#1a1a2e', fontSize: '1.2rem' }}>
+              🚛 Dispatch Booking — {dispatchModal.trackingId}
+            </h3>
+            <p style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+              {dispatchModal.pickup} → {dispatchModal.drop} | {dispatchModal.vehicle}
+            </p>
+
+            {dispatchSuccess && (
+              <div style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: '10px', padding: '0.85rem', marginBottom: '1rem', color: '#166534', fontSize: '0.85rem', fontWeight: 600 }}>
+                {dispatchSuccess}
+              </div>
+            )}
+
+            <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#374151', marginBottom: '0.75rem' }}>
+              Matching Drivers ({matchingDrivers.length} found on this route):
+            </p>
+
+            {matchingDrivers.length === 0 ? (
+              <div style={{ background: '#fef9c3', border: '1px solid #fde047', borderRadius: '10px', padding: '1rem', textAlign: 'center', color: '#854d0e', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                Is route ke liye koi registered driver nahi mila.<br />
+                <span style={{ fontSize: '0.75rem' }}>Driver Partner page se drivers register kar sakte hain.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+                {matchingDrivers.map(driver => (
+                  <div key={driver._id} style={{ background: '#f5f7ff', borderRadius: '12px', padding: '1rem', border: '1.5px solid #e8eaff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    <div>
+                      <p style={{ margin: '0 0 2px', fontWeight: 700, color: '#1a1a2e', fontSize: '0.9rem' }}>{driver.name}</p>
+                      <p style={{ margin: '0 0 4px', color: '#6b7280', fontSize: '0.8rem' }}>{driver.phone} | {driver.vehicle}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px' }}>
+                        {driver.routes?.slice(0, 3).map(r => (
+                          <span key={r} style={{ background: '#eef0ff', color: '#4361ee', fontSize: '0.65rem', padding: '1px 6px', borderRadius: '100px', fontWeight: 600 }}>{r}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => sendDispatch(driver)}
+                      disabled={dispatchLoading}
+                      style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#22c55e', color: 'white', fontWeight: 700, cursor: dispatchLoading ? 'not-allowed' : 'pointer', fontSize: '0.82rem', opacity: dispatchLoading ? 0.7 : 1 }}>
+                      📲 Send Notification
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button onClick={() => { setDispatchModal(null); setDispatchSuccess(''); }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '2px solid #e8eaff', background: 'white', color: '#6b7280', fontWeight: 700, cursor: 'pointer' }}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STATUS MODAL */}
       {statusModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: '420px' }}>
@@ -228,7 +387,7 @@ export default function Admin() {
         </div>
       )}
 
-      {/* Driver Modal */}
+      {/* DRIVER ASSIGN MODAL */}
       {driverModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div style={{ background: 'white', borderRadius: '20px', padding: '2rem', width: '100%', maxWidth: '420px' }}>
