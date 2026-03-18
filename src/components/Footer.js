@@ -1,86 +1,115 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Footer() {
-  return (
-    <footer id="contact" className="bg-black text-gray-400 pt-14 pb-6 px-6">
-      <div className="max-w-6xl mx-auto">
+const LINKS = [
+  { label:'Home',           to:'/' },
+  { label:'Book Delivery',  to:'/booking' },
+  { label:'Track Order',    to:'/tracking' },
+  { label:'Driver Partner', to:'/driver-partner' },
+  { label:'Login',          to:'/login' },
+];
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+const SERVICES = ['B2B Logistics','Factory Delivery','Return Load Matching','Fleet Management','Enterprise Plans'];
+
+export default function Footer() {
+  return (
+    <footer style={{ background:'#0a0a0f', borderTop:'1px solid rgba(255,255,255,0.06)', fontFamily:"'Plus Jakarta Sans', sans-serif", color:'white' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        .footer-link { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.18s; }
+        .footer-link:hover { color: #f59e0b; }
+        .footer-contact-link { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.18s; display: block; }
+        .footer-contact-link:hover { color: #f59e0b; }
+      `}</style>
+
+      {/* Main grid */}
+      <div style={{ maxWidth:'1240px', margin:'0 auto', padding:'4rem 5% 3rem' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1.5fr 1fr 1fr 1.2fr', gap:'3rem', marginBottom:'3rem' }} className="footer-grid">
 
           {/* Brand */}
-          <div className="md:col-span-1">
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#FBBF24', textShadow: '0 0 20px rgba(251,191,36,0.5)', fontFamily: 'Manrope, sans-serif', marginBottom: '0.5rem' }}>SWIFTO</div>
-            <p className="text-sm text-gray-500 mb-4">Aasaan Logistics, Pakki Delivery</p>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              India's first B2B Logistics Platform.
-              Pan India delivery from Pithampur, Indore.
+          <div>
+            <div style={{ marginBottom:'1rem' }}>
+              <span style={{ fontSize:'1.8rem', fontWeight:800, color:'#f59e0b', letterSpacing:'-1px', lineHeight:1, display:'block' }}>SWIFTO</span>
+              <span style={{ fontSize:'0.6rem', color:'rgba(255,255,255,0.3)', fontWeight:600, letterSpacing:'2px', textTransform:'uppercase' }}>Aasaan Logistics, Pakki Delivery</span>
+            </div>
+            <p style={{ fontSize:'0.82rem', color:'rgba(255,255,255,0.35)', lineHeight:1.75, maxWidth:'260px', marginBottom:'1.5rem' }}>
+              India's first B2B Logistics Platform. Pan India delivery from Pithampur, Indore.
             </p>
+            <div style={{ display:'flex', gap:'8px' }}>
+              {[
+                { label:'Call', href:'tel:+919179838941', c:'#f59e0b' },
+                { label:'WhatsApp', href:'https://wa.me/919179838941', c:'#22c55e' },
+                { label:'Email', href:'mailto:info@swifto.in', c:'#38bdf8' },
+              ].map(b => (
+                <a key={b.label} href={b.href} target={b.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ textDecoration:'none' }}>
+                  <div style={{ background:`${b.c}18`, border:`1px solid ${b.c}30`, borderRadius:'8px', padding:'6px 12px', fontSize:'0.72rem', fontWeight:700, color:b.c, transition:'all 0.18s', cursor:'pointer' }}>
+                    {b.label}
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="hover:text-yellow-400 transition">Home</Link></li>
-              <li><Link to="/booking" className="hover:text-yellow-400 transition">Book Delivery</Link></li>
-              <li><Link to="/tracking" className="hover:text-yellow-400 transition">Track Order</Link></li>
-              <li><Link to="/driver-partner" className="hover:text-yellow-400 transition">Driver Partner</Link></li>
-              <li><Link to="/login" className="hover:text-yellow-400 transition">Login / Register</Link></li>
+            <p style={{ fontSize:'0.62rem', fontWeight:700, color:'#f59e0b', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'1.25rem' }}>Quick Links</p>
+            <ul style={{ listStyle:'none', padding:0, margin:0, display:'flex', flexDirection:'column', gap:'10px' }}>
+              {LINKS.map(l => (
+                <li key={l.to}><Link to={l.to} className="footer-link">{l.label}</Link></li>
+              ))}
             </ul>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Services</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="hover:text-yellow-400 transition cursor-pointer">B2B Logistics</li>
-              <li className="hover:text-yellow-400 transition cursor-pointer">Factory Delivery</li>
-              <li className="hover:text-yellow-400 transition cursor-pointer">Return Load Matching</li>
-              <li className="hover:text-yellow-400 transition cursor-pointer">Fleet Management</li>
-              <li className="hover:text-yellow-400 transition cursor-pointer">Enterprise Plans</li>
+            <p style={{ fontSize:'0.62rem', fontWeight:700, color:'#f59e0b', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'1.25rem' }}>Services</p>
+            <ul style={{ listStyle:'none', padding:0, margin:0, display:'flex', flexDirection:'column', gap:'10px' }}>
+              {SERVICES.map(s => (
+                <li key={s}><span className="footer-link" style={{ cursor:'default' }}>{s}</span></li>
+              ))}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Contact</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <a href="tel:+919179838941" className="hover:text-yellow-400 transition flex items-center gap-2">
-                  Phone: +91 9179838941
-                </a>
-              </li>
-              <li>
-                <a href="mailto:support@swifto.in" className="hover:text-yellow-400 transition flex items-center gap-2">
-                  Email: support@swifto.in
-                </a>
-              </li>
-              <li>
-                Address: Pithampur Industrial Zone, Indore, MP
-              </li>
-              <li className="text-xs text-green-400 font-semibold">
-                Available 24/7
-              </li>
-            </ul>
+            <p style={{ fontSize:'0.62rem', fontWeight:700, color:'#f59e0b', letterSpacing:'2px', textTransform:'uppercase', marginBottom:'1.25rem' }}>Contact</p>
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+              <a href="tel:+919179838941" className="footer-contact-link">+91 9179838941</a>
+              <a href="mailto:info@swifto.in" className="footer-contact-link">info@swifto.in</a>
+              <p style={{ fontSize:'0.82rem', color:'rgba(255,255,255,0.35)', lineHeight:1.6, margin:0 }}>Pithampur Industrial Zone,<br />Indore, Madhya Pradesh</p>
+              <div style={{ display:'inline-flex', alignItems:'center', gap:'6px' }}>
+                <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 6px #22c55e' }} />
+                <span style={{ fontSize:'0.72rem', fontWeight:700, color:'#22c55e' }}>Available 24/7</span>
+              </div>
+            </div>
           </div>
-
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-          <p>© 2025 SWIFTO Logistics Pvt. Ltd. All rights reserved.</p>
-          <div className="flex gap-4">
-            <span className="hover:text-gray-400 cursor-pointer transition">Privacy Policy</span>
-            <span className="hover:text-gray-400 cursor-pointer transition">Terms of Service</span>
-            <span className="hover:text-gray-400 cursor-pointer transition">Refund Policy</span>
-          </div>
-          <p>Made with Pride in India, India</p>
-        </div>
+        {/* Divider */}
+        <div style={{ height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'1.5rem' }} />
 
+        {/* Bottom bar */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:'1rem' }}>
+          <p style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.25)', margin:0 }}>
+            &copy; 2025 SWIFTO Logistics Pvt. Ltd. All rights reserved.
+          </p>
+          <div style={{ display:'flex', gap:'1.5rem' }}>
+            {['Privacy Policy','Terms of Service','Refund Policy'].map(l => (
+              <span key={l} className="footer-link" style={{ cursor:'pointer', fontSize:'0.75rem' }}>{l}</span>
+            ))}
+          </div>
+          <p style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.2)', margin:0 }}>Made with Pride in India</p>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 900px) {
+          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+        }
+        @media (max-width: 560px) {
+          .footer-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </footer>
   );
 }
-
-export default Footer;

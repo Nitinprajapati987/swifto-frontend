@@ -91,11 +91,11 @@ function CityPopup({ onSelect, onClose }) {
       <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '780px', maxHeight: '88vh', overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.3)', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
         <div style={{ padding: '1.75rem 1.75rem 1rem', borderBottom: '1px solid #f0f0f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.4rem', fontWeight: 900, color: '#111', margin: 0 }}>Select Your City</h2>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.4rem', fontWeight: 900, color: '#111', margin: 0 }}>Select Your City</h2>
             <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem' }}>X</button>
           </div>
           <input autoFocus type="text" placeholder="Search city..." value={search} onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '12px', border: '1.5px solid #e5e5e5', background: '#fafafa', fontSize: '0.9rem', outline: 'none', color: '#111', boxSizing: 'border-box', fontFamily: 'DM Sans, sans-serif' }}
+            style={{ width: '100%', padding: '0.85rem 1rem', borderRadius: '12px', border: '1.5px solid #e5e5e5', background: '#fafafa', fontSize: '0.9rem', outline: 'none', color: '#111', boxSizing: 'border-box', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             onFocus={e => e.target.style.borderColor = '#f59e0b'} onBlur={e => e.target.style.borderColor = '#e5e5e5'} />
         </div>
         <div style={{ overflowY: 'auto', padding: '1.25rem 1.75rem 1.75rem' }}>
@@ -110,7 +110,7 @@ function CityPopup({ onSelect, onClose }) {
                   <span style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(255,255,255,0.95)', fontSize: '0.55rem', fontWeight: 800, color: '#374151', padding: '2px 6px', borderRadius: '5px' }}>{city.state}</span>
                 </div>
                 <div style={{ padding: '0.6rem' }}>
-                  <p style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '0.82rem', color: '#111', margin: 0 }}>{city.name}</p>
+                  <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '0.82rem', color: '#111', margin: 0 }}>{city.name}</p>
                 </div>
               </div>
             ))}
@@ -127,7 +127,7 @@ function VehiclePopup({ onSelect, onClose, selected }) {
       <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '720px', maxHeight: '88vh', overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.3)', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
         <div style={{ padding: '1.75rem 1.75rem 1.25rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.4rem', fontWeight: 900, color: '#111', margin: '0 0 4px' }}>Select Vehicle Type</h2>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.4rem', fontWeight: 900, color: '#111', margin: '0 0 4px' }}>Select Vehicle Type</h2>
             <p style={{ color: '#888', fontSize: '0.82rem', margin: 0 }}>Choose based on your load requirement</p>
           </div>
           <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '0.9rem' }}>X</button>
@@ -146,7 +146,7 @@ function VehiclePopup({ onSelect, onClose, selected }) {
                     {isSelected && <span style={{ position: 'absolute', top: '6px', right: '8px', background: '#f59e0b', color: 'white', fontSize: '0.55rem', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>Selected</span>}
                   </div>
                   <div style={{ padding: '0.65rem 0.75rem 0.75rem' }}>
-                    <p style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '0.82rem', color: isSelected ? '#d97706' : '#111', margin: '0 0 2px' }}>{v.label}</p>
+                    <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '0.82rem', color: isSelected ? '#d97706' : '#111', margin: '0 0 2px' }}>{v.label}</p>
                     <p style={{ fontSize: '0.7rem', color: '#aaa', margin: 0 }}>{v.desc}</p>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ function Hero() {
             </div>
 
             {/* Headline */}
-            <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2.8rem, 5.5vw, 4.5rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2px', color: 'white', marginBottom: '1.25rem' }}>
+            <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 'clamp(2.8rem, 5.5vw, 4.5rem)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-2px', color: 'white', marginBottom: '1.25rem' }}>
               Move Goods.<br />
               <span style={{ color: '#f59e0b' }}>Move Faster.</span>
             </h1>
@@ -233,7 +233,7 @@ function Hero() {
                 ['10 Min', 'Confirmation'],
               ].map(([num, label]) => (
                 <div key={label} style={{ borderLeft: '3px solid #f59e0b', paddingLeft: '12px' }}>
-                  <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#f59e0b', lineHeight: 1 }}>{num}</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#f59e0b', lineHeight: 1 }}>{num}</div>
                   <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
                 </div>
               ))}
@@ -251,7 +251,7 @@ function Hero() {
           </div>
 
           {/* RIGHT — Booking Card */}
-          <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 24px 80px rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 24px 80px rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.15)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
             {/* Card Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -277,10 +277,10 @@ function Hero() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
                 <input type="text" placeholder="Pickup address..." value={pickup} onChange={e => setPickup(e.target.value)}
-                  style={{ background: '#f9fafb', color: '#111', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e5e7eb', fontSize: '0.88rem', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+                  style={{ background: '#f9fafb', color: '#111', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e5e7eb', fontSize: '0.88rem', fontFamily: "'Plus Jakarta Sans', sans-serif", boxSizing: 'border-box', transition: 'border-color 0.2s' }}
                   onFocus={e => e.target.style.borderColor = '#f59e0b'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
                 <input type="text" placeholder="Drop address..." value={drop} onChange={e => setDrop(e.target.value)}
-                  style={{ background: '#f9fafb', color: '#111', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e5e7eb', fontSize: '0.88rem', fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+                  style={{ background: '#f9fafb', color: '#111', padding: '0.85rem 1rem', borderRadius: '10px', width: '100%', outline: 'none', border: '1.5px solid #e5e7eb', fontSize: '0.88rem', fontFamily: "'Plus Jakarta Sans', sans-serif", boxSizing: 'border-box', transition: 'border-color 0.2s' }}
                   onFocus={e => e.target.style.borderColor = '#f59e0b'} onBlur={e => e.target.style.borderColor = '#e5e7eb'} />
               </div>
             </div>
@@ -289,7 +289,7 @@ function Hero() {
 
             {/* Vehicle Select */}
             <button onClick={() => setShowVehiclePopup(true)}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: vehicle ? '#fffbeb' : '#f9fafb', border: vehicle ? '1.5px solid #f59e0b' : '1.5px solid #e5e7eb', borderRadius: '12px', padding: '0.8rem 1rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s', marginBottom: '1.25rem' }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: vehicle ? '#fffbeb' : '#f9fafb', border: vehicle ? '1.5px solid #f59e0b' : '1.5px solid #e5e7eb', borderRadius: '12px', padding: '0.8rem 1rem', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif", transition: 'all 0.2s', marginBottom: '1.25rem' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.background = '#fffbeb'; }}
               onMouseLeave={e => { if (!vehicle) { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.background = '#f9fafb'; }}}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -305,10 +305,8 @@ function Hero() {
             </button>
 
             {/* CTA Button */}
-            <button onClick={handleSearch}
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', width: '100%', padding: '1rem', borderRadius: '12px', fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 6px 24px rgba(245,158,11,0.45)', transition: 'all 0.2s', letterSpacing: '0.3px' }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 32px rgba(245,158,11,0.55)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(245,158,11,0.45)'; }}>
+            <button onClick={handleSearch} className="hero-cta-btn"
+              style={{ background: '#f59e0b', color: '#0f172a', width: '100%', padding: '1rem', borderRadius: '12px', fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 6px 24px rgba(245,158,11,0.4)', transition: 'all 0.2s', letterSpacing: '0.2px' }}>
               Get Best Price
             </button>
 
@@ -325,8 +323,9 @@ function Hero() {
         </div>
 
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
-          input::placeholder { color: #9ca3af !important; }
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+          input::placeholder { color: #94a3b8 !important; }
+          .hero-cta-btn:hover { transform: translateY(-2px) !important; box-shadow: 0 12px 36px rgba(245,158,11,0.55) !important; }
         `}</style>
       </div>
     </>

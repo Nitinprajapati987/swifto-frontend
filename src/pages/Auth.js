@@ -1,320 +1,392 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
-const sendOTP = (phone) => authAPI.sendOTP({ phone });
-const verifyOTP = (phone, otp, sessionId, name) => authAPI.verifyOTP({ phone, otp, sessionId, name });
-
-const cities = [
+const CITIES = [
   'Indore','Pithampur','Bhopal','Dewas','Ujjain',
   'Mumbai','Pune','Nagpur','Delhi','Ahmedabad',
   'Jaipur','Surat','Hyderabad','Bangalore','Chennai',
   'Kolkata','Lucknow','Raipur','Nashik','Vadodara',
 ];
 
-const BG = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+.sw-root { min-height:100vh; background:#f0f2f5; display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Plus Jakarta Sans',sans-serif; }
+.sw-wrap { display:grid; grid-template-columns:1fr 1fr; max-width:900px; width:100%; border-radius:24px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.13); }
+.sw-left { background:#0f172a; padding:3rem 2.5rem; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+.sw-left::before { content:''; position:absolute; top:-80px; right:-80px; width:260px; height:260px; border-radius:50%; background:rgba(245,158,11,0.08); pointer-events:none; }
+.sw-left::after  { content:''; position:absolute; bottom:-60px; left:-60px; width:180px; height:180px; border-radius:50%; background:rgba(245,158,11,0.05); pointer-events:none; }
+.sw-logo    { font-size:2.2rem; font-weight:800; color:#f59e0b; letter-spacing:3px; margin-bottom:4px; position:relative; z-index:1; }
+.sw-tagline { font-size:0.62rem; font-weight:600; letter-spacing:3px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:2.5rem; position:relative; z-index:1; }
+.sw-left-title { font-size:1.75rem; font-weight:800; color:white; line-height:1.25; margin-bottom:1rem; position:relative; z-index:1; letter-spacing:-0.5px; }
+.sw-left-title span { color:#f59e0b; }
+.sw-left-desc { font-size:0.82rem; color:rgba(255,255,255,0.45); line-height:1.7; margin-bottom:2rem; position:relative; z-index:1; }
+.sw-feat { display:flex; gap:10px; align-items:center; margin-bottom:14px; position:relative; z-index:1; }
+.sw-feat-icon { width:28px; height:28px; border-radius:8px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sw-feat-icon svg { width:13px; height:13px; stroke:#f59e0b; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.sw-feat-text { font-size:0.78rem; color:rgba(255,255,255,0.6); font-weight:500; }
+.sw-divider { width:36px; height:1px; background:rgba(255,255,255,0.1); margin:1.5rem 0; position:relative; z-index:1; }
+.sw-stats { display:flex; gap:1.5rem; position:relative; z-index:1; }
+.sw-stat-num { font-size:1.4rem; font-weight:800; color:#f59e0b; line-height:1; }
+.sw-stat-lbl { font-size:0.6rem; font-weight:600; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; margin-top:2px; }
+.sw-right { background:white; padding:2.5rem 2.25rem; overflow-y:auto; max-height:100vh; }
+.sw-greeting { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#9ca3af; margin-bottom:5px; }
+.sw-title { font-size:1.5rem; font-weight:800; color:#0f172a; letter-spacing:-0.5px; margin-bottom:1.5rem; }
+.sw-tabs { display:flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:1.75rem; }
+.sw-tab { flex:1; padding:9px 0; border:none; background:transparent; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; color:#9ca3af; transition:all 0.2s; }
+.sw-tab.active { background:#0f172a; color:white; }
+.sw-progress { display:flex; gap:4px; margin-bottom:1.5rem; }
+.sw-seg { flex:1; height:3px; background:#e5e7eb; transition:background 0.3s; }
+.sw-seg.done { background:#f59e0b; }
+.sw-error { background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:9px 12px; margin-bottom:1rem; color:#dc2626; font-size:0.76rem; }
+.sw-field { margin-bottom:1rem; }
+.sw-label { display:block; font-size:0.65rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:6px; }
+.sw-input { width:100%; padding:11px 13px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.86rem; color:#111827; outline:none; transition:all 0.2s; }
+.sw-input:focus { border-color:#f59e0b; background:#fffbeb; }
+.sw-input::placeholder { color:#d1d5db; }
+.sw-input:disabled { background:#f1f5f9; color:#94a3b8; cursor:not-allowed; }
+.sw-input option { background:white; color:#111; }
+.sw-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.sw-row { display:flex; gap:8px; margin-bottom:1rem; }
+.sw-row .sw-input { flex:1; }
+.sw-otp-input { flex:1; text-align:center; font-size:1.2rem; font-weight:800; letter-spacing:6px; padding:11px 13px; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:10px; font-family:'Plus Jakarta Sans',sans-serif; color:#111827; outline:none; transition:all 0.2s; }
+.sw-otp-input:focus { border-color:#f59e0b; background:#fffbeb; }
+.sw-obtn { padding:11px 16px; border-radius:10px; border:none; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.sw-obtn.amber { background:#f59e0b; color:#0f172a; }
+.sw-obtn.amber:hover { background:#d97706; }
+.sw-obtn.dark  { background:#0f172a; color:white; }
+.sw-obtn.gray  { background:#e5e7eb; color:#9ca3af; cursor:not-allowed; }
+.sw-obtn.green { background:#dcfce7; color:#16a34a; cursor:default; font-size:0.8rem; }
+.sw-verified { display:flex; align-items:center; gap:8px; padding:9px 12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; margin-bottom:1rem; font-size:0.78rem; color:#15803d; font-weight:600; }
+.sw-btn { width:100%; padding:12px; background:#f59e0b; border:none; border-radius:10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.88rem; font-weight:800; color:#111827; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.sw-btn:hover { background:#d97706; transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,158,11,0.35); }
+.sw-btn:disabled { opacity:0.55; cursor:not-allowed; transform:none; box-shadow:none; }
+.sw-ghost { width:100%; padding:10px; background:transparent; border:1.5px solid #e5e7eb; border-radius:10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.8rem; font-weight:600; color:#6b7280; cursor:pointer; margin-top:8px; transition:all 0.2s; }
+.sw-ghost:hover { border-color:#9ca3af; color:#374151; }
+.sw-switch { text-align:center; margin-top:1.25rem; font-size:0.78rem; color:#9ca3af; }
+.sw-switch span { color:#f59e0b; cursor:pointer; font-weight:700; }
+.sw-switch span:hover { text-decoration:underline; }
+.sw-forgot { text-align:right; font-size:0.72rem; color:#f59e0b; cursor:pointer; font-weight:600; margin-bottom:1.25rem; margin-top:-0.5rem; }
+.sw-forgot:hover { text-decoration:underline; }
+.sw-otp-info { font-size:0.7rem; color:#9ca3af; margin-bottom:0.75rem; }
+@keyframes sw-spin { to { transform:rotate(360deg); } }
+.sw-spin { width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#111; border-radius:50%; animation:sw-spin 0.7s linear infinite; display:inline-block; }
+.sw-spin.w { border-top-color:white; }
+.sw-right::-webkit-scrollbar { width:4px; }
+.sw-right::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:2px; }
+@media (max-width:640px) {
+  .sw-wrap { grid-template-columns:1fr; }
+  .sw-left { display:none; }
+  .sw-right { border-radius:24px; }
+}
+`;
+
+const Field = ({ label, name, type='text', placeholder, autoComplete='new-password', value, onChange, disabled }) => (
+  <div className="sw-field">
+    <label className="sw-label">{label}</label>
+    <input className="sw-input" name={name} type={type} placeholder={placeholder}
+      value={value} onChange={onChange} autoComplete={autoComplete} disabled={disabled}
+      maxLength={name==='phone'?10:undefined} />
+  </div>
+);
+
+const CitySelect = ({ value, onChange }) => (
+  <div className="sw-field">
+    <label className="sw-label">City *</label>
+    <select className="sw-input" name="city" value={value} onChange={onChange}>
+      <option value="">Select your city</option>
+      {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+    </select>
+  </div>
+);
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('login');
-  const [loginMethod, setLoginMethod] = useState('email');
-  const [step, setStep] = useState(1);
+
+  const [mode, setMode]       = useState('login');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [sessionId, setSessionId] = useState('');
-  const [form, setForm] = useState({
-    firstName: '', lastName: '', phone: '', email: '',
-    city: '', password: '', otp: '',
-  });
+  const [error, setError]     = useState('');
 
-  const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setError(''); };
+  // Login
+  const [loginId, setLoginId]   = useState('');
+  const [loginPwd, setLoginPwd] = useState('');
 
-  const switchMode = (m) => {
-    setMode(m); setStep(1); setError(''); setLoginMethod('email');
-    setForm({ firstName: '', lastName: '', phone: '', email: '', city: '', password: '', otp: '' });
+  // Register
+  const [form, setForm]                   = useState({ firstName:'', lastName:'', phone:'', email:'', city:'', password:'' });
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent]             = useState(false);
+  const [otp, setOtp]                     = useState('');
+  const [sessionId, setSessionId]         = useState('');
+  const [otpLoading, setOtpLoading]       = useState(false);
+  const [otpError, setOtpError]           = useState('');
+  const [countdown, setCountdown]         = useState(0);
+
+  useEffect(() => {
+    if (localStorage.getItem('swifto_token')) navigate('/');
+  }, [navigate]);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  const reset = () => {
+    setError(''); setLoginId(''); setLoginPwd('');
+    setForm({ firstName:'', lastName:'', phone:'', email:'', city:'', password:'' });
+    setPhoneVerified(false); setOtpSent(false); setOtp('');
+    setOtpError(''); setCountdown(0); setSessionId('');
   };
 
-  const handleSendOTP = async () => {
-    if (!form.firstName.trim()) return setError('First name is required');
-    if (!form.phone || form.phone.length < 10) return setError('Enter a valid 10-digit phone number');
-    if (!form.email.trim()) return setError('Email is required');
-    if (!form.city) return setError('Please select your city');
-    if (!form.password || form.password.length < 6) return setError('Password must be at least 6 characters');
+  const switchMode = m => { reset(); setMode(m); };
+
+  const saveAndGo = data => {
+    localStorage.setItem('swifto_token', data.token);
+    localStorage.setItem('swifto_user', JSON.stringify(data.user));
+    navigate('/');
+  };
+
+  const handleFormChange = e => {
+    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+    setError('');
+    if (e.target.name === 'phone') {
+      setPhoneVerified(false); setOtpSent(false);
+      setOtp(''); setOtpError(''); setCountdown(0);
+    }
+  };
+
+  // ── LOGIN ──
+  const handleLogin = async () => {
+    if (!loginId.trim())  { setError('Enter your email or phone number.'); return; }
+    if (!loginPwd.trim()) { setError('Enter your password.'); return; }
     setLoading(true);
     try {
-      const res = await sendOTP(form.phone);
-      if (res.data.success) { setSessionId(res.data.sessionId); setStep(2); }
-    } catch (err) { setError(err.response?.data?.message || 'Failed to send OTP.'); }
+      const isPhone = /^[6-9]\d{9}$/.test(loginId.trim());
+      const payload = isPhone
+        ? { phone: loginId.trim(), password: loginPwd }
+        : { email: loginId.trim(), password: loginPwd };
+      const res = await authAPI.login(payload);
+      saveAndGo(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+    }
     setLoading(false);
   };
 
-  const handleVerifyOTP = async () => {
-    if (!form.otp || form.otp.length !== 6) return setError('Enter the 6-digit OTP');
+  // ── REGISTER: Send OTP ──
+  const sendOTP = async () => {
+    if (!form.phone || !/^[6-9]\d{9}$/.test(form.phone)) {
+      setOtpError('Enter a valid 10-digit phone number.'); return;
+    }
+    setOtpLoading(true); setOtpError('');
+    try {
+      const res = await authAPI.sendOTP({ phone: form.phone });
+      setSessionId(res.data.sessionId);
+      setOtpSent(true);
+      setCountdown(30);
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Failed to send OTP. Try again.');
+    }
+    setOtpLoading(false);
+  };
+
+  // ── REGISTER: Verify OTP ──
+  const verifyOTP = async () => {
+    if (!otp || otp.length < 4) { setOtpError('Please enter the OTP.'); return; }
+    setOtpLoading(true); setOtpError('');
+    try {
+      await authAPI.verifyOTP({ phone: form.phone, otp, sessionId });
+      setPhoneVerified(true); setOtpError('');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Invalid OTP. Try again.');
+    }
+    setOtpLoading(false);
+  };
+
+  // ── REGISTER: Submit ──
+  const handleRegister = async () => {
+    if (!form.firstName.trim())                     { setError('First name is required.'); return; }
+    if (!phoneVerified)                             { setError('Please verify your phone number first.'); return; }
+    if (!form.city)                                 { setError('Please select your city.'); return; }
+    if (!form.password || form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
     setLoading(true);
     try {
       const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
-      const res = await verifyOTP(form.phone, form.otp, sessionId, fullName);
-      localStorage.setItem('swifto_token', res.data.token);
-      localStorage.setItem('swifto_user', JSON.stringify(res.data.user));
-      navigate('/');
-    } catch (err) { setError(err.response?.data?.message || 'Invalid OTP.'); }
-    setLoading(false);
-  };
-
-  const handleEmailLogin = async (e) => {
-    e.preventDefault();
-    if (!form.email || !form.password) return setError('Email and password required');
-    setLoading(true);
-    try {
-      const res = await authAPI.login({ email: form.email, password: form.password });
-      localStorage.setItem('swifto_token', res.data.token);
-      localStorage.setItem('swifto_user', JSON.stringify(res.data.user));
-      navigate('/');
-    } catch (err) { setError(err.response?.data?.message || 'Invalid credentials'); }
-    setLoading(false);
-  };
-
-  const handleLoginSendOTP = async () => {
-    if (!form.phone || form.phone.length < 10) return setError('Enter a valid 10-digit phone number');
-    setLoading(true);
-    try {
-      const res = await sendOTP(form.phone);
-      if (res.data.success) { setSessionId(res.data.sessionId); setStep(2); }
-    } catch (err) { setError(err.response?.data?.message || 'Failed to send OTP.'); }
-    setLoading(false);
-  };
-
-  const handleLoginVerifyOTP = async () => {
-    if (!form.otp || form.otp.length !== 6) return setError('Enter the 6-digit OTP');
-    setLoading(true);
-    try {
-      const res = await authAPI.loginWithOTP({ phone: form.phone, otp: form.otp, sessionId });
-      localStorage.setItem('swifto_token', res.data.token);
-      localStorage.setItem('swifto_user', JSON.stringify(res.data.user));
-      navigate('/');
-    } catch (err) { setError(err.response?.data?.message || 'Invalid OTP.'); }
+      const verRes = await authAPI.verifyOTP({ phone: form.phone, otp, sessionId, name: fullName });
+      await authAPI.register({
+        firstName: form.firstName, lastName: form.lastName,
+        phone: form.phone, email: form.email,
+        city: form.city, password: form.password,
+      });
+      saveAndGo(verRes.data);
+    } catch (err) {
+      if (err.response?.status === 400) {
+        setError('Session expired. Please send OTP again.');
+        setPhoneVerified(false); setOtpSent(false); setOtp('');
+      } else {
+        setError(err.response?.data?.message || 'Registration failed. Try again.');
+      }
+    }
     setLoading(false);
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', background: BG,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '20px', fontFamily: "'DM Sans', sans-serif",
-    }}>
-      {/* ── Two-column wrapper ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: mode === 'register' ? '1fr 1fr' : '1fr',
-        maxWidth: mode === 'register' ? '900px' : '440px',
-        width: '100%', gap: '0',
-        borderRadius: '20px', overflow: 'hidden',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
-        transition: 'max-width 0.3s',
-      }}>
+    <>
+      <style>{CSS}</style>
+      <div className="sw-root">
+        <div className="sw-wrap">
 
-        {/* ── LEFT PANEL — only on register ── */}
-        {mode === 'register' && (
-          <div style={{
-            background: 'linear-gradient(160deg, #e63946 0%, #c1121f 100%)',
-            padding: '48px 36px', display: 'flex', flexDirection: 'column',
-            justifyContent: 'center', color: 'white',
-          }}>
-            <h1 style={{ fontSize: '32px', fontWeight: '900', margin: '0 0 6px', letterSpacing: '-1px' }}>SWIFTO</h1>
-            <p style={{ fontSize: '14px', opacity: 0.85, margin: '0 0 36px' }}>India's #1 B2B Logistics Platform</p>
-
-            <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 20px', lineHeight: 1.3 }}>
-              Join 2500+ Drivers &amp;<br />50+ Companies
-            </h2>
-
+          {/* LEFT */}
+          <div className="sw-left">
+            <div className="sw-logo">SWIFTO</div>
+            <div className="sw-tagline">India's B2B Logistics Platform</div>
+            <h2 className="sw-left-title">Welcome to<br /><span>SWIFTO</span></h2>
+            <p className="sw-left-desc">India's most trusted logistics network. Pithampur se Pan India — fast, reliable, transparent.</p>
             {[
-              ['', 'Guaranteed Loads', 'Never run empty again'],
-              ['', '10 Min Response', 'Fastest booking in India'],
-              ['', '24hr Payment', 'Direct bank transfer'],
-              ['', 'Live Tracking', 'Real-time GPS updates'],
-            ].map(([icon, title, sub]) => (
-              <div key={title} style={{ display: 'flex', gap: '12px', marginBottom: '18px', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '20px', marginTop: '2px' }}>{icon}</span>
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '14px' }}>{title}</div>
-                  <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '2px' }}>{sub}</div>
+              { path:'M5 12h14M12 5l7 7-7 7',                                                                            text:'Truck confirmed in 10 minutes' },
+              { path:'M2 5h20v14H2zM2 10h20', rect:true,                                                                 text:'Payment in 24 hours' },
+              { path:'M12 8v4l3 3', circle:true,                                                                          text:'Real-time GPS tracking' },
+              { path:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', circle2:true, text:'2,500+ verified drivers' },
+            ].map((f, i) => (
+              <div key={i} className="sw-feat">
+                <div className="sw-feat-icon">
+                  <svg viewBox="0 0 24 24">
+                    {f.circle  && <circle cx="12" cy="12" r="10" />}
+                    {f.circle2 && <circle cx="9"  cy="7"  r="4"  />}
+                    {f.rect    && <rect x="2" y="5" width="20" height="14" rx="2" />}
+                    <path d={f.path} />
+                  </svg>
                 </div>
+                <span className="sw-feat-text">{f.text}</span>
               </div>
             ))}
-
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.25)', paddingTop: '20px', marginTop: '8px' }}>
-              <div style={{ display: 'flex', gap: '24px' }}>
-                {[['2500+','Drivers'],['10K+','Trips'],['500+','Companies']].map(([n, l]) => (
-                  <div key={l}>
-                    <div style={{ fontSize: '18px', fontWeight: '900' }}>{n}</div>
-                    <div style={{ fontSize: '11px', opacity: 0.7 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="sw-divider" />
+            <div className="sw-stats">
+              {[['100+','Trips'],['20+','Companies'],['28+','Cities']].map(([n,l]) => (
+                <div key={l}><div className="sw-stat-num">{n}</div><div className="sw-stat-lbl">{l}</div></div>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* ── RIGHT PANEL — form ── */}
-        <div style={{ background: 'white', padding: '36px 32px', overflowY: 'auto', maxHeight: '95vh' }}>
+          {/* RIGHT */}
+          <div className="sw-right">
+            <div className="sw-greeting">{mode==='login' ? 'Welcome back' : 'Create account'}</div>
+            <div className="sw-title">{mode==='login' ? 'Sign In' : 'Register'}</div>
 
-          {/* Logo — only when not register (login view) */}
-          {mode === 'login' && (
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h1 style={{ fontSize: '30px', fontWeight: '900', color: '#e63946', margin: 0, letterSpacing: '-1px' }}>SWIFTO</h1>
-              <p style={{ color: '#888', margin: '4px 0 0', fontSize: '13px' }}>Logistics Platform</p>
+            <div className="sw-tabs">
+              <button className={`sw-tab${mode==='login'?' active':''}`}    onClick={() => switchMode('login')}>Login</button>
+              <button className={`sw-tab${mode==='register'?' active':''}`} onClick={() => switchMode('register')}>Sign Up</button>
             </div>
-          )}
 
-          {/* Logo small — on register panel */}
-          {mode === 'register' && (
-            <div style={{ marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#e63946', margin: 0 }}>Create Account</h2>
-              <p style={{ color: '#999', margin: '4px 0 0', fontSize: '13px' }}>Join SWIFTO today</p>
-            </div>
-          )}
+            {error && <div className="sw-error">{error}</div>}
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', marginBottom: '24px', background: '#f3f3f3', borderRadius: '10px', padding: '4px', gap: '4px' }}>
-            {[['login','Login'], ['register','Sign Up']].map(([m, label]) => (
-              <button key={m} onClick={() => switchMode(m)} style={{
-                flex: 1, padding: '10px', border: 'none', borderRadius: '8px', cursor: 'pointer',
-                fontWeight: '700', fontSize: '14px', transition: 'all 0.2s',
-                background: mode === m ? '#e63946' : 'transparent',
-                color: mode === m ? 'white' : '#888',
-              }}>{label}</button>
-            ))}
-          </div>
+            {/* ══ LOGIN ══ */}
+            {mode === 'login' && (
+              <>
+                <div className="sw-field">
+                  <label className="sw-label">Email or Phone Number</label>
+                  <input className="sw-input" type="text"
+                    placeholder="Email address or 10-digit phone"
+                    value={loginId}
+                    onChange={e => { setLoginId(e.target.value); setError(''); }}
+                    autoComplete="username"
+                  />
+                </div>
 
-          {/* Error */}
-          {error && (
-            <div style={{
-              background: '#fff0f0', border: '1px solid #ffcccc', borderRadius: '8px',
-              padding: '10px 14px', marginBottom: '16px', color: '#cc0000', fontSize: '13px',
-            }}>{error}</div>
-          )}
+                <div className="sw-field">
+                  <label className="sw-label">Password</label>
+                  <input className="sw-input" type="password"
+                    placeholder="Enter your password"
+                    value={loginPwd}
+                    onChange={e => { setLoginPwd(e.target.value); setError(''); }}
+                    autoComplete="current-password"
+                  />
+                </div>
 
-          {/* ══ LOGIN ══ */}
-          {mode === 'login' && (
-            <div>
-              <div style={{ display: 'flex', background: '#f3f3f3', borderRadius: '8px', padding: '3px', gap: '3px', marginBottom: '20px' }}>
-                {[['email','Email & Password'], ['phone','Phone OTP']].map(([m, label]) => (
-                  <button key={m} onClick={() => { setLoginMethod(m); setStep(1); setError(''); setForm(f => ({ ...f, otp: '' })); }} style={{
-                    flex: 1, padding: '8px', border: 'none', borderRadius: '6px', cursor: 'pointer',
-                    fontWeight: '600', fontSize: '13px', transition: 'all 0.2s',
-                    background: loginMethod === m ? '#e63946' : 'transparent',
-                    color: loginMethod === m ? 'white' : '#888',
-                  }}>{label}</button>
-                ))}
-              </div>
+                <div className="sw-forgot">Forgot password?</div>
 
-              {loginMethod === 'email' && (
-                <form onSubmit={handleEmailLogin}>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={labelStyle}>Email Address</label>
-                    <input name="email" type="email" placeholder="enter your email id" value={form.email} onChange={handleChange} style={inputStyle} />
-                  </div>
-                  <div style={{ marginBottom: '22px' }}>
-                    <label style={labelStyle}>Password</label>
-                    <input name="password" type="password" placeholder="Enter password" value={form.password} onChange={handleChange} style={inputStyle} />
-                  </div>
-                  <button type="submit" disabled={loading} style={btnStyle}>{loading ? 'Logging in...' : 'Login'}</button>
-                </form>
-              )}
+                <button className="sw-btn" onClick={handleLogin} disabled={loading}>
+                  {loading ? <><span className="sw-spin" /> Signing in...</> : 'Sign In'}
+                </button>
+              </>
+            )}
 
-              {loginMethod === 'phone' && (
-                <div>
-                  {step === 1 && (
-                    <>
-                      <div style={{ marginBottom: '8px' }}>
-                        <label style={labelStyle}>Phone Number</label>
-                        <input name="phone" type="tel" placeholder="10-digit mobile number" value={form.phone} onChange={handleChange} style={inputStyle} maxLength={10} />
-                      </div>
-                      <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px' }}>OTP will be sent via SMS</p>
-                      <button onClick={handleLoginSendOTP} disabled={loading} style={btnStyle}>{loading ? 'Sending OTP...' : 'Send OTP'}</button>
-                    </>
+            {/* ══ REGISTER ══ */}
+            {mode === 'register' && (
+              <>
+                <div className="sw-progress">
+                  <div className={`sw-seg${phoneVerified ? ' done' : ''}`} />
+                  <div className={`sw-seg${phoneVerified ? ' done' : ''}`} />
+                </div>
+
+                <div className="sw-grid2">
+                  <Field label="First Name *" name="firstName" placeholder="First name" autoComplete="off" value={form.firstName} onChange={handleFormChange} />
+                  <Field label="Last Name"    name="lastName"  placeholder="Last name"  autoComplete="off" value={form.lastName}  onChange={handleFormChange} />
+                </div>
+
+                {/* Phone + Send OTP */}
+                <label className="sw-label">Phone Number *</label>
+                <div className="sw-row">
+                  <input className="sw-input" name="phone" type="tel"
+                    placeholder="10-digit mobile number"
+                    value={form.phone} onChange={handleFormChange}
+                    maxLength={10} disabled={phoneVerified}
+                    style={{ background: phoneVerified ? '#f0fdf4' : undefined }}
+                  />
+                  {!phoneVerified && (
+                    <button
+                      className={`sw-obtn ${countdown > 0 ? 'gray' : 'amber'}`}
+                      onClick={sendOTP}
+                      disabled={otpLoading || countdown > 0}
+                    >
+                      {otpLoading ? <span className="sw-spin" /> : countdown > 0 ? `${countdown}s` : otpSent ? 'Resend' : 'Send OTP'}
+                    </button>
                   )}
-                  {step === 2 && (
-                    <>
-                      <div style={{ background: '#f0fff4', border: '1px solid #c3f0ca', borderRadius: '8px', padding: '10px', marginBottom: '16px', textAlign: 'center' }}>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#2d7a3a' }}>OTP sent to <strong>+91 {form.phone}</strong></p>
-                      </div>
-                      <div style={{ marginBottom: '20px' }}>
-                        <label style={labelStyle}>Enter 6-Digit OTP</label>
-                        <input name="otp" type="number" placeholder="000000" value={form.otp} onChange={handleChange} maxLength={6}
-                          style={{ ...inputStyle, textAlign: 'center', fontSize: '24px', letterSpacing: '10px', fontWeight: '700' }} />
-                      </div>
-                      <button onClick={handleLoginVerifyOTP} disabled={loading} style={btnStyle}>{loading ? 'Verifying...' : 'Verify & Login'}</button>
-                      <button onClick={() => { setStep(1); setError(''); }} style={{ ...btnStyle, background: 'transparent', color: '#888', border: '1px solid #ddd', marginTop: '10px' }}>← Change Number</button>
-                    </>
+                  {phoneVerified && (
+                    <button className="sw-obtn green" disabled>✓ Verified</button>
                   )}
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* ══ REGISTER ══ */}
-          {mode === 'register' && (
-            <div>
-              {step === 1 && (
-                <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-                    <div>
-                      <label style={labelStyle}>First Name *</label>
-                      <input name="firstName" placeholder="Rahul" value={form.firstName} onChange={handleChange} style={inputStyle} />
-                    </div>
-                    <div>
-                      <label style={labelStyle}>Last Name</label>
-                      <input name="lastName" placeholder="Sharma" value={form.lastName} onChange={handleChange} style={inputStyle} />
-                    </div>
+                {/* OTP Input */}
+                {otpSent && !phoneVerified && (
+                  <div className="sw-row">
+                    <input className="sw-otp-input" type="text" inputMode="numeric"
+                      placeholder="Enter OTP"
+                      value={otp}
+                      onChange={e => { setOtp(e.target.value.replace(/\D/g,'')); setOtpError(''); }}
+                      maxLength={6}
+                    />
+                    <button className="sw-obtn dark" onClick={verifyOTP} disabled={otpLoading}>
+                      {otpLoading ? <span className="sw-spin w" /> : 'Verify'}
+                    </button>
                   </div>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={labelStyle}>Phone Number *</label>
-                    <input name="phone" type="tel" placeholder="10-digit mobile number" value={form.phone} onChange={handleChange} style={inputStyle} maxLength={10} />
-                  </div>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={labelStyle}>Email Address *</label>
-                    <input name="email" type="email" placeholder="your@email.com" value={form.email} onChange={handleChange} style={inputStyle} />
-                  </div>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={labelStyle}>City *</label>
-                    <select name="city" value={form.city} onChange={handleChange} style={{ ...inputStyle, cursor: 'pointer', color: form.city ? '#222' : '#aaa' }}>
-                      <option value="">Select your city</option>
-                      {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div style={{ marginBottom: '6px' }}>
-                    <label style={labelStyle}>Password *</label>
-                    <input name="password" type="password" placeholder="Min 6 characters" value={form.password} onChange={handleChange} style={inputStyle} />
-                  </div>
-                  <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px' }}>OTP will be sent to your phone for verification</p>
-                  <button onClick={handleSendOTP} disabled={loading} style={btnStyle}>{loading ? 'Sending OTP...' : 'Send OTP to Verify'}</button>
-                </>
-              )}
+                )}
+                {otpError && <p style={{ fontSize:'0.7rem', color:'#ef4444', marginBottom:'0.75rem', marginTop:'-0.5rem' }}>{otpError}</p>}
 
-              {step === 2 && (
-                <>
-                  <div style={{ background: '#f0fff4', border: '1px solid #c3f0ca', borderRadius: '8px', padding: '12px', marginBottom: '20px', textAlign: 'center' }}>
-                    <p style={{ margin: 0, fontSize: '14px', color: '#2d7a3a' }}>OTP sent to <strong>+91 {form.phone}</strong></p>
-                  </div>
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={labelStyle}>Enter 6-Digit OTP</label>
-                    <input name="otp" type="number" placeholder="000000" value={form.otp} onChange={handleChange} maxLength={6}
-                      style={{ ...inputStyle, textAlign: 'center', fontSize: '24px', letterSpacing: '10px', fontWeight: '700' }} />
-                  </div>
-                  <button onClick={handleVerifyOTP} disabled={loading} style={btnStyle}>{loading ? 'Verifying...' : 'Verify & Create Account'}</button>
-                  <button onClick={() => { setStep(1); setError(''); }} style={{ ...btnStyle, background: 'transparent', color: '#888', border: '1px solid #ddd', marginTop: '10px' }}>← Go Back</button>
-                </>
-              )}
+                {phoneVerified && (
+                  <div className="sw-verified">✓ Phone number verified successfully!</div>
+                )}
+
+                <Field label="Email Address (Optional)" name="email" type="email" placeholder="your@email.com" autoComplete="off" value={form.email} onChange={handleFormChange} />
+                <CitySelect value={form.city} onChange={handleFormChange} />
+                <Field label="Password *" name="password" type="password" placeholder="Minimum 6 characters" value={form.password} onChange={handleFormChange} />
+
+                <button className="sw-btn" onClick={handleRegister} disabled={loading}>
+                  {loading ? <><span className="sw-spin" /> Creating account...</> : 'Sign Up'}
+                </button>
+              </>
+            )}
+
+            <div className="sw-switch">
+              {mode === 'login'
+                ? <>Don't have an account? <span onClick={() => switchMode('register')}>Sign up free</span></>
+                : <>Already have an account? <span onClick={() => switchMode('login')}>Sign in</span></>
+              }
             </div>
-          )}
+          </div>
         </div>
       </div>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
-    </div>
+    </>
   );
 }
-
-const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '13px', color: '#333' };
-const inputStyle = { width: '100%', padding: '11px 14px', border: '1.5px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s', color: '#222' };
-const btnStyle = { width: '100%', padding: '13px', background: '#e63946', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s', display: 'block' };

@@ -15,157 +15,101 @@ import shree from '../assets/logos/shree_tirupati_balaji_fibc_ltd.png';
 import srf from '../assets/logos/SRF.png';
 import tata from '../assets/logos/tata_motors.png';
 
-const companies = [
-  { name: 'Bajaj Auto', img: bajaj },
-  { name: 'Cipla', img: cipla },
-  { name: 'Dhoot Automotive', img: dhoot },
-  { name: 'Eicher', img: eicher },
-  { name: 'Force Motors', img: force },
-  { name: 'Hindustan Motors', img: hindustan },
-  { name: 'Lupin', img: lupin },
-  { name: 'Mahindra', img: mahindra },
-  { name: 'MAHLE', img: mahle },
-  { name: 'Mylan', img: mylan },
-  { name: 'Pratibha', img: pratibha },
-  { name: 'Shree Tirupati Balajee', img: shree },
-  { name: 'SRF', img: srf },
-  { name: 'TATA Motors', img: tata },
+const COMPANIES = [
+  { name:'Bajaj Auto',          img:bajaj },
+  { name:'Cipla',               img:cipla },
+  { name:'Dhoot Automotive',    img:dhoot },
+  { name:'Eicher',              img:eicher },
+  { name:'Force Motors',        img:force },
+  { name:'Hindustan Motors',    img:hindustan },
+  { name:'Lupin',               img:lupin },
+  { name:'Mahindra',            img:mahindra },
+  { name:'MAHLE',               img:mahle },
+  { name:'Mylan',               img:mylan },
+  { name:'Pratibha',            img:pratibha },
+  { name:'Shree Tirupati',      img:shree },
+  { name:'SRF',                 img:srf },
+  { name:'TATA Motors',         img:tata },
 ];
 
-const row1 = [...companies, ...companies, ...companies];
-const row2 = [...companies, ...companies, ...companies].reverse();
-
-const statsData = [
-  { val: '20+',     label: 'Pithampur Companies', gradient: 'linear-gradient(135deg, #5b21b6, #8b5cf6)' },
-  { val: '20+',     label: 'Factories Served',    gradient: 'linear-gradient(135deg, #b45309, #f59e0b)' },
-  { val: 'Rs.50L+', label: 'Goods Delivered',     gradient: 'linear-gradient(135deg, #be185d, #ec4899)' },
-  { val: '99.2%',   label: 'On-Time Delivery',    gradient: 'linear-gradient(135deg, #065f46, #10b981)' },
+const STATS = [
+  { val:'20+',     label:'Pithampur Companies', accent:'#f59e0b' },
+  { val:'20+',     label:'Factories Served',    accent:'#0ea5e9' },
+  { val:'Rs.50L+', label:'Goods Delivered',     accent:'#22c55e' },
+  { val:'99.2%',   label:'On-Time Delivery',    accent:'#a855f7' },
 ];
 
-const Card = ({ c }) => (
-  <div style={{
-    flexShrink: 0,
-    width: '160px',
-    background: 'white',
-    border: '1.5px solid #ffe8e8',
-    borderRadius: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '14px 10px 10px',
-    boxShadow: '0 2px 8px rgba(230,57,70,0.06)',
-    transition: 'all 0.25s',
-    cursor: 'default',
-    gap: '8px',
-  }}
-    onMouseEnter={e => {
-      e.currentTarget.style.borderColor = '#e63946';
-      e.currentTarget.style.transform = 'scale(1.06)';
-      e.currentTarget.style.boxShadow = '0 8px 24px rgba(230,57,70,0.18)';
-    }}
-    onMouseLeave={e => {
-      e.currentTarget.style.borderColor = '#ffe8e8';
-      e.currentTarget.style.transform = 'scale(1)';
-      e.currentTarget.style.boxShadow = '0 2px 8px rgba(230,57,70,0.06)';
-    }}
-  >
-    <div style={{ height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-      <img src={c.img} alt={c.name} style={{ maxWidth: '130px', maxHeight: '50px', objectFit: 'contain' }} />
-    </div>
-    <div style={{ width: '100%', height: '1px', background: '#fff0f0' }} />
-    <p style={{
-      fontFamily: 'Manrope, sans-serif',
-      fontWeight: 700,
-      fontSize: '0.72rem',
-      color: '#374151',
-      textAlign: 'center',
-      margin: 0,
-      lineHeight: 1.3,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      width: '100%',
-      padding: '0 4px',
-    }}>
-      {c.name}
-    </p>
-  </div>
-);
+const row1 = [...COMPANIES, ...COMPANIES, ...COMPANIES];
+const row2 = [...COMPANIES, ...COMPANIES, ...COMPANIES].reverse();
 
-function OurClients() {
+function LogoCard({ c }) {
   return (
-    <div style={{ background: 'white', padding: '4.5rem 0', overflow: 'hidden', borderTop: '1px solid #fff0f0', borderBottom: '1px solid #fff0f0' }}>
-
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem', padding: '0 5%' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#fff0f0', border: '1.5px solid #ffcccc', borderRadius: '100px', padding: '0.45rem 1.25rem', marginBottom: '1.25rem' }}>
-          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#e63946', display: 'inline-block' }} />
-          <span style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.78rem', fontWeight: 800, color: '#e63946', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Our Clients</span>
-          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#e63946', display: 'inline-block' }} />
-        </div>
-        <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 900, color: '#1a1a2e', letterSpacing: '-0.5px', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-          Powering Logistics for <span style={{ color: '#e63946' }}>India's Finest</span> Industries
-        </h2>
-        <p style={{ color: '#6b7280', fontSize: '1rem', maxWidth: '480px', margin: '0 auto' }}>
-          Trusted by leading manufacturers, pharma giants and industrial brands across India.
-        </p>
+    <div className="client-card" style={{ flexShrink:0, width:'150px', background:'white', border:'1px solid #e2e8f0', borderRadius:'14px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'14px 10px', gap:'8px', transition:'all 0.22s', cursor:'default' }}>
+      <div style={{ height:'44px', display:'flex', alignItems:'center', justifyContent:'center', width:'100%' }}>
+        <img src={c.img} alt={c.name} style={{ maxWidth:'120px', maxHeight:'42px', objectFit:'contain', filter:'grayscale(0.2)', transition:'filter 0.2s' }} />
       </div>
-
-      {/* Row 1 — Left to Right */}
-      <div style={{ overflow: 'hidden', marginBottom: '1.25rem', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to right, white, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to left, white, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', gap: '1.25rem', animation: 'scrollLeft 40s linear infinite', width: 'max-content', padding: '0.5rem 0' }}>
-          {row1.map((c, i) => <Card key={i} c={c} />)}
-        </div>
-      </div>
-
-      {/* Row 2 — Right to Left */}
-      <div style={{ overflow: 'hidden', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to right, white, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to left, white, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ display: 'flex', gap: '1.25rem', animation: 'scrollRight 50s linear infinite', width: 'max-content', padding: '0.5rem 0' }}>
-          {row2.map((c, i) => <Card key={i} c={c} />)}
-        </div>
-      </div>
-
-      {/* Stats — gradient cards */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', flexWrap: 'wrap', marginTop: '3rem', padding: '0 5%' }}>
-        {statsData.map((s, i) => (
-          <div key={i}
-            style={{
-              textAlign: 'center',
-              padding: '1.25rem 1.75rem',
-              background: s.gradient,
-              borderRadius: '20px',
-              minWidth: '150px',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'all 0.3s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.15)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <div style={{ position: 'absolute', top: '-15px', right: '-15px', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', pointerEvents: 'none' }} />
-            <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.6rem', fontWeight: 900, color: 'white', lineHeight: 1, margin: 0 }}>{s.val}</p>
-            <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', margin: '4px 0 0' }}>{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&display=swap');
-        @keyframes scrollLeft {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
-        }
-        @keyframes scrollRight {
-          0%   { transform: translateX(-33.333%); }
-          100% { transform: translateX(0); }
-        }
-      `}</style>
+      <div style={{ width:'100%', height:'1px', background:'#f1f5f9' }} />
+      <p style={{ fontSize:'0.68rem', fontWeight:700, color:'#64748b', textAlign:'center', margin:0, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', width:'100%', padding:'0 4px', fontFamily:"'Plus Jakarta Sans', sans-serif" }}>
+        {c.name}
+      </p>
     </div>
   );
 }
 
-export default OurClients;
+export default function OurClients() {
+  return (
+    <div style={{ background:'white', padding:'5rem 0', overflow:'hidden', fontFamily:"'Plus Jakarta Sans', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        .client-card:hover { border-color: #f59e0b !important; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(245,158,11,0.12); }
+        .client-card:hover img { filter: grayscale(0) !important; }
+        @keyframes scrollLeft  { from { transform: translateX(0); }       to { transform: translateX(-33.333%); } }
+        @keyframes scrollRight { from { transform: translateX(-33.333%);} to { transform: translateX(0); } }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ textAlign:'center', marginBottom:'3rem', padding:'0 5%' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:'8px', background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'100px', padding:'5px 16px', marginBottom:'1rem' }}>
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#f59e0b' }} />
+          <span style={{ fontSize:'0.62rem', fontWeight:700, color:'#b45309', letterSpacing:'2px', textTransform:'uppercase' }}>Our Clients</span>
+        </div>
+        <h2 style={{ fontSize:'clamp(1.8rem, 3vw, 2.6rem)', fontWeight:800, color:'#0f172a', letterSpacing:'-0.5px', marginBottom:'0.5rem', lineHeight:1.2 }}>
+          Powering Logistics for <span style={{ color:'#f59e0b' }}>India's Finest</span>
+        </h2>
+        <p style={{ color:'#64748b', fontSize:'0.95rem', maxWidth:'440px', margin:'0 auto' }}>
+          Trusted by leading manufacturers, pharma giants and industrial brands.
+        </p>
+      </div>
+
+      {/* Row 1 — left scroll */}
+      <div style={{ overflow:'hidden', marginBottom:'1rem', position:'relative' }}>
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'80px', background:'linear-gradient(to right, white, transparent)', zIndex:2, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'80px', background:'linear-gradient(to left, white, transparent)', zIndex:2, pointerEvents:'none' }} />
+        <div style={{ display:'flex', gap:'12px', animation:'scrollLeft 35s linear infinite', width:'max-content', padding:'0.5rem 0' }}>
+          {row1.map((c, i) => <LogoCard key={i} c={c} />)}
+        </div>
+      </div>
+
+      {/* Row 2 — right scroll */}
+      <div style={{ overflow:'hidden', position:'relative' }}>
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'80px', background:'linear-gradient(to right, white, transparent)', zIndex:2, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'80px', background:'linear-gradient(to left, white, transparent)', zIndex:2, pointerEvents:'none' }} />
+        <div style={{ display:'flex', gap:'12px', animation:'scrollRight 45s linear infinite', width:'max-content', padding:'0.5rem 0' }}>
+          {row2.map((c, i) => <LogoCard key={i} c={c} />)}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display:'flex', justifyContent:'center', gap:'1rem', flexWrap:'wrap', marginTop:'3rem', padding:'0 5%' }}>
+        {STATS.map((s, i) => (
+          <div key={i} style={{ background:'white', border:`1.5px solid ${s.accent}30`, borderRadius:'16px', padding:'1.25rem 2rem', textAlign:'center', minWidth:'140px', transition:'all 0.2s', cursor:'default' }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${s.accent}08`; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${s.accent}18`; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>
+            <p style={{ fontSize:'1.8rem', fontWeight:800, color:s.accent, lineHeight:1, marginBottom:'4px' }}>{s.val}</p>
+            <p style={{ fontSize:'0.72rem', fontWeight:600, color:'#64748b', margin:0, textTransform:'uppercase', letterSpacing:'0.8px' }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

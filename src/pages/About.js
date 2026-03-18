@@ -1,395 +1,409 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import nitinPhoto from '../assets/logos/nitinp.png';
+import shivPhoto from '../assets/logos/ShivPrasadPrajapati.png';
+import ankitPhoto from '../assets/logos/Ankit1.png';
+import arunPhoto from '../assets/logos/Arun2.png';
+import factory1 from '../assets/logos/factory1.png';
+import factory2 from '../assets/logos/factory2.png';
+import factory3 from '../assets/logos/factory3.png';
+import factory4 from '../assets/logos/factory4.png';
+import factory5 from '../assets/logos/factory5.png';
 
-const BG = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+const FACTORIES = [factory1, factory2, factory3, factory4, factory5];
 
-const team = [
+const STATS = [
+  { num: '2025',   label: 'Year Founded' },
+  { num: '2,500+', label: 'Driver Network' },
+  { num: '100+',   label: 'Trips Completed' },
+  { num: '28+',    label: 'Cities Covered' },
+];
+
+const TEAM = [
   {
     name: 'Nitin Prajapati',
     role: 'Founder, CEO & Technology Head',
     initials: 'NP',
     photo: nitinPhoto,
-    color: '#e63946',
-    glow: 'rgba(230,57,70,0.3)',
-    desc: 'Nitin Prajapati grew up in Pithampur, Madhya Pradesh — one of India\'s most active industrial zones. Every day, he witnessed factories struggling with the same problem: securing a reliable truck was harder than manufacturing the goods themselves. After completing his MCA from the National Institute of Technology, Trichy, he returned home with a clear mission — to fix the broken logistics system that was slowing down the very factories he grew up around. He built SWIFTO entirely on his own. His vision: an India where no factory ever waits for a truck — where every load moves on time, every driver earns fairly, and every business, big or small, has access to the same reliable freight service.',
-    tags: ['NIT Trichy', 'Pithampur', 'Founder', 'CEO'],
+    accent: '#d97706',
+    desc: 'Grew up in Pithampur. After MCA from NIT Trichy, returned to fix the broken logistics system slowing down the factories he grew up around. Built SWIFTO entirely solo — platform, tech, operations.',
+    tags: ['Founder', 'CEO', 'Technology Head'],
   },
   {
     name: 'Shiv Prasad Prajapati',
     role: 'Chairman',
     initials: 'SP',
-    color: '#f59e0b',
-    glow: 'rgba(245,158,11,0.3)',
-    desc: 'With over 50 years of hands-on industrial experience, Shiv Prasad Prajapati is the guiding force behind SWIFTO. His deep knowledge of Central India\'s manufacturing sector provides the company with unmatched strategic direction.',
-    tags: ['50+ Years Experience', 'Industry Veteran', 'Chairman'],
+    photo: shivPhoto,
+    accent: '#0ea5e9',
+    desc: '50+ years of hands-on industrial experience across Central India. Deep expertise in manufacturing supply chains and freight operations that guides SWIFTO\'s strategic direction.',
+    tags: ['50+ Years', 'Industry Veteran'],
   },
   {
     name: 'Shaiwal Singh',
     role: 'Tehsildar — Pithampur Industrial Area',
     initials: 'SS',
-    color: '#14b8a6',
-    glow: 'rgba(20,184,166,0.3)',
-    desc: 'Shaiwal Singh serves as Tehsildar of the Pithampur Industrial Area. His administrative expertise and deep understanding of the region\'s industrial landscape play a key role in facilitating smooth logistics operations for SWIFTO.',
-    tags: ['Pithampur', 'Industrial Area', 'Administration'],
+    photo: null,
+    accent: '#10b981',
+    desc: 'Administrative backbone of the Pithampur Industrial Area. His governance expertise ensures seamless freight coordination across the entire industrial zone.',
+    tags: ['Pithampur', 'Administration'],
   },
   {
     name: 'Ankit Kumar Prajapati',
     role: 'Head of Industrial Relations',
     initials: 'AK',
-    color: '#a78bfa',
-    glow: 'rgba(167,139,250,0.3)',
-    desc: 'Electrical Engineer with 12+ years of experience across leading textile and manufacturing companies in Gujarat and MP. Former Electrical Manager at Aghara Spintex, Rajsamadhiyala Spintex, and Bridgestone India.',
-    tags: ['12+ Years', 'Electrical Engineer', 'Industrial Relations'],
+    photo: ankitPhoto,
+    accent: '#8b5cf6',
+    desc: 'Electrical Engineer with 12+ years across textile and manufacturing in Gujarat and MP. Former Electrical Manager at Bridgestone India, Aghara Spintex, and Rajsamadhiyala Spintex.',
+    tags: ['12+ Years', 'Electrical Engineer'],
+  },
+  {
+    name: 'Arun Pandey',
+    role: 'Field Manager',
+    initials: 'AP',
+    photo: arunPhoto,
+    accent: '#ef4444',
+    desc: 'On-ground operations leader ensuring every pickup, delivery, and driver coordination runs without a hitch. The bridge between SWIFTO\'s platform and real-world freight movement across Central India.',
+    tags: ['Field Ops', 'Ground Execution'],
   },
 ];
 
-const why = [
-  { num: '01', title: '10 Minute Confirmation',  desc: 'Fastest truck assignment in the industry. No waiting, no follow-ups.' },
-  { num: '02', title: '2,500+ Verified Drivers',  desc: 'Every driver is background-checked, trained, and GPS-equipped.' },
-  { num: '03', title: 'Real-Time GPS Tracking',   desc: 'Monitor your shipment live from pickup to final delivery.' },
-  { num: '04', title: '24-Hour Payment',           desc: 'Direct bank transfer to drivers within 24 hours of delivery.' },
-  { num: '05', title: 'Zero Hidden Charges',       desc: 'Transparent pricing agreed upfront. No surprise invoices.' },
-  { num: '06', title: 'Return Load Matching',      desc: 'AI-powered system eliminates empty return trips, saving cost.' },
+const WHY = [
+  { num: '01', title: '10 Min Confirmation',  desc: 'Fastest truck assignment in India. No calls, no waiting, no brokers.' },
+  { num: '02', title: 'Verified Driver Fleet', desc: 'Every driver background-checked, trained, and GPS-equipped.' },
+  { num: '03', title: 'Live GPS Tracking',     desc: 'Monitor your shipment from pickup to delivery, in real time.' },
+  { num: '04', title: '24-Hour Payment',       desc: 'Direct bank transfer to drivers within 24 hours of delivery.' },
+  { num: '05', title: 'Zero Hidden Charges',   desc: 'Price agreed upfront. No surprise invoices, ever.' },
+  { num: '06', title: 'Return Load AI',        desc: 'Eliminates empty trips — drivers earn more, freight rates drop.' },
 ];
 
-// eslint-disable-next-line no-unused-vars
-const timeline = [
-  { year: 'Jan 2025', title: 'SWIFTO Founded',          desc: 'Nitin Prajapati incorporates SWIFTO in Pithampur, Madhya Pradesh with a mission to transform B2B freight.' },
-  { year: 'Mar 2025', title: 'Platform Launch',          desc: 'Full-stack logistics platform goes live — booking, tracking, driver app, and admin dashboard all built in-house.' },
-  { year: 'May 2025', title: '500+ Drivers Onboarded',   desc: 'First 500 verified driver-partners join the SWIFTO network across Central India.' },
-  { year: 'Aug 2025', title: 'Pan India Expansion',      desc: 'Operations expand to 28+ cities across 8 states including Maharashtra, Gujarat, Delhi NCR, and South India.' },
-  { year: 'Oct 2025', title: '10,000 Trips Milestone',   desc: 'SWIFTO completes 10,000 successful deliveries with a 98% on-time rate.' },
-  { year: '2026',     title: 'Next Chapter',             desc: 'Enterprise API integrations, driver mobile app launch, and expansion to 50+ cities planned.' },
+const COVERAGE = [
+  { region: 'Madhya Pradesh', cities: 'Indore · Pithampur · Bhopal · Dewas · Ujjain' },
+  { region: 'Maharashtra',    cities: 'Mumbai · Pune · Nagpur · Nashik' },
+  { region: 'Gujarat',        cities: 'Ahmedabad · Surat · Vadodara · Rajkot' },
+  { region: 'Delhi NCR',      cities: 'Delhi · Gurugram · Noida · Faridabad' },
+  { region: 'Rajasthan',      cities: 'Jaipur · Jodhpur · Kota · Udaipur' },
+  { region: 'South India',    cities: 'Hyderabad · Bangalore · Chennai' },
+  { region: 'East India',     cities: 'Kolkata · Bhubaneswar · Patna' },
+  { region: 'Uttar Pradesh',  cities: 'Lucknow · Kanpur · Agra · Varanasi' },
 ];
 
-const values = [
-  { title: 'Speed',          desc: 'Every minute a truck waits is money lost. We are obsessed with eliminating delays at every step.',        icon: '⚡' },
-  { title: 'Transparency',   desc: 'No hidden charges, no broker commissions, no surprises. What you see is exactly what you pay.',          icon: '🔍' },
-  { title: 'Reliability',    desc: 'A confirmed booking at SWIFTO is a guarantee. Our drivers are trained and our systems are redundant.',    icon: '🛡' },
-  { title: 'Driver Welfare', desc: 'We treat our drivers as partners — fair pay, on-time payment, and support at every step of the journey.', icon: '🤝' },
-];
+const CLIENTS = ['Bajaj Auto','Tata Motors','Cipla','Mahindra','MAHLE','Lupin','Force Motors','SRF','Eicher','Dhoot Automotive','Pratibha','Hindustan Motors'];
 
-const clients = [
-  'Bajaj Auto', 'Cipla Pharmaceuticals', 'Tata Steel', 'Mahindra Logistics',
-  'Reliance Industries', 'Asian Paints', 'Ultratech Cement', 'Godrej Industries',
-];
+export default function About() {
+  const [imgIdx, setImgIdx]           = useState(0);
+  const [fade, setFade]               = useState(true);
+  const [visible, setVisible]         = useState({});
+  const intervalRef                   = useRef(null);
+  const refs                          = useRef({});
 
-const coverage = [
-  { region: 'Madhya Pradesh',  cities: 'Indore, Pithampur, Bhopal, Dewas, Ujjain, Raipur' },
-  { region: 'Maharashtra',     cities: 'Mumbai, Pune, Nagpur, Nashik, Aurangabad' },
-  { region: 'Gujarat',         cities: 'Ahmedabad, Surat, Vadodara, Rajkot' },
-  { region: 'Delhi NCR',       cities: 'Delhi, Gurugram, Noida, Faridabad' },
-  { region: 'Rajasthan',       cities: 'Jaipur, Jodhpur, Kota, Udaipur' },
-  { region: 'South India',     cities: 'Hyderabad, Bangalore, Chennai, Coimbatore' },
-  { region: 'East India',      cities: 'Kolkata, Bhubaneswar, Patna' },
-  { region: 'Uttar Pradesh',   cities: 'Lucknow, Kanpur, Agra, Varanasi' },
-];
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setFade(false);
+      setTimeout(() => { setImgIdx(i => (i + 1) % FACTORIES.length); setFade(true); }, 250);
+    }, 3500);
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
-const stats = [
-  { num: '2025',    label: 'Founded' },
-  { num: '2,500+',  label: 'Active Drivers' },
-  { num: '100+',    label: 'Trips Completed' },
-  { num: '28+',     label: 'Cities Covered' },
-];
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) setVisible(p => ({ ...p, [e.target.dataset.id]: true }));
+      }),
+      { threshold: 0.1 }
+    );
+    Object.values(refs.current).forEach(el => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
-function About() {
-  const [hoveredMember, setHoveredMember] = useState(null);
+  const rv = (id, delay = 0) => ({
+    ref: el => { refs.current[id] = el; },
+    'data-id': id,
+    style: {
+      opacity: visible[id] ? 1 : 0,
+      transform: visible[id] ? 'translateY(0)' : 'translateY(28px)',
+      transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`,
+    },
+  });
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: BG, minHeight: '100vh', color: 'white' }}>
+    <div style={{ fontFamily:"'DM Sans', sans-serif", background:'#fafaf8', minHeight:'100vh' }}>
+      <style>{CSS}</style>
       <Navbar />
 
-      {/* ── HERO ── */}
-      <div style={{ position: 'relative', overflow: 'hidden', padding: '9rem 5% 6rem', maxWidth: '1300px', margin: '0 auto' }}>
-        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'rgba(230,57,70,0.05)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '0', right: '0', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(59,130,246,0.04)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      {/* HERO */}
+      <div style={{ position:'relative', height:'92vh', minHeight:'580px', overflow:'hidden' }}>
+        <img key={imgIdx} src={FACTORIES[imgIdx]} alt=""
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover',
+            opacity: fade ? 1 : 0, transition:'opacity 0.25s ease', filter:'brightness(0.35) saturate(0.85)' }} />
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(105deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.15) 100%)' }} />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'200px', background:'linear-gradient(to top, #fafaf8, transparent)' }} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '5rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(230,57,70,0.1)', border: '1px solid rgba(230,57,70,0.25)', borderRadius: '100px', padding: '0.4rem 1.1rem', marginBottom: '2rem' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#e63946' }} />
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#e63946', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Our Story</span>
-            </div>
-            <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2.8rem, 5vw, 4.2rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2px', marginBottom: '1.5rem' }}>
-              Built for India's<br />
-              <span style={{ color: '#e63946', position: 'relative' }}>
-                Industrial Backbone
-                <span style={{ position: 'absolute', bottom: '-4px', left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #e63946, transparent)', borderRadius: '2px' }} />
-              </span>
-            </h1>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.05rem', lineHeight: 1.8, marginBottom: '1.25rem', maxWidth: '500px' }}>
-              SWIFTO was founded in 2025 in Pithampur, Madhya Pradesh — one of India's most powerful industrial zones, home to 1,500+ factories across automotive, pharmaceuticals, engineering, chemicals, and FMCG sectors. Giants like Mahindra, Force Motors, Cipla, and Larsen & Toubro operate here. The zone generates thousands of crores in annual output — yet its freight infrastructure was completely broken. Brokers overcharged. Drivers ran empty. Every load was a phone call that nobody answered.
-            </p>
+        {/* Amber left accent line */}
+        <div style={{ position:'absolute', left:'calc(5% - 24px)', top:'50%', transform:'translateY(-50%)', width:'3px', height:'100px', background:'linear-gradient(#f59e0b, transparent)', borderRadius:'2px' }} />
 
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.9rem', lineHeight: 1.8, maxWidth: '500px', marginBottom: '2.5rem', fontStyle: 'italic', borderLeft: '3px solid rgba(230,57,70,0.4)', paddingLeft: '1rem' }}>
-              "My vision is an India where no factory ever waits for a truck — where every load moves on time, every driver earns fairly, and logistics is never the reason a business slows down."
-              <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.8rem', fontStyle: 'normal', fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>— Nitin Prajapati, Founder & CEO</span>
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/booking" style={{ textDecoration: 'none' }}>
-                <button style={{ background: '#e63946', color: 'white', border: 'none', borderRadius: '10px', padding: '0.9rem 1.75rem', fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 8px 24px rgba(230,57,70,0.35)', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(230,57,70,0.5)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(230,57,70,0.35)'; }}>
-                  Book a Delivery
-                </button>
-              </Link>
-              <Link to="/contact" style={{ textDecoration: 'none' }}>
-                <button style={{ background: 'transparent', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.9rem 1.75rem', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = 'white'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}>
-                  Contact Us
-                </button>
-              </Link>
-            </div>
+        <div style={{ position:'absolute', top:'50%', left:'5%', transform:'translateY(-52%)', maxWidth:'700px', zIndex:2 }}>
+          <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1.5rem' }}>
+            Est. 2025 — Pithampur, Madhya Pradesh
+          </p>
+          <h1 style={{ fontFamily:"'Playfair Display', serif", fontSize:'clamp(3rem, 6vw, 5.5rem)', fontWeight:700, color:'white', lineHeight:1.0, letterSpacing:'-1px', marginBottom:'2rem' }}>
+            Built Where<br />
+            <em style={{ color:'#f59e0b' }}>India Works.</em>
+          </h1>
+          <p style={{ fontSize:'1.05rem', color:'rgba(255,255,255,0.6)', lineHeight:1.8, maxWidth:'500px', marginBottom:'2.5rem', fontWeight:400 }}>
+            SWIFTO was born inside Pithampur's 1,500-factory industrial corridor — where logistics was the one problem nobody had solved.
+          </p>
+          <div style={{ display:'flex', gap:'12px', flexWrap:'wrap' }}>
+            <Link to="/booking" style={{ textDecoration:'none' }}>
+              <button className="btn-amber">Book a Delivery</button>
+            </Link>
+            <Link to="/contact" style={{ textDecoration:'none' }}>
+              <button className="btn-ghost">Contact Us</button>
+            </Link>
           </div>
+        </div>
 
-          {/* Stats + Vision */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {stats.map((s, i) => (
-              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '1.75rem', transition: 'all 0.25s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(230,57,70,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: '2rem', fontWeight: 900, color: '#e63946', marginBottom: '0.35rem', lineHeight: 1 }}>{s.num}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 600 }}>{s.label}</div>
-              </div>
-            ))}
-            <div style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, rgba(230,57,70,0.08), rgba(230,57,70,0.03))', border: '1px solid rgba(230,57,70,0.15)', borderRadius: '20px', padding: '1.75rem' }}>
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(230,57,70,0.6)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>Our Vision</div>
-              <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'white', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-                To become India's most trusted logistics company — setting the benchmark in every freight segment we enter.
+        {/* Dot nav */}
+        <div style={{ position:'absolute', bottom:'7rem', left:'5%', display:'flex', gap:'8px', zIndex:2 }}>
+          {FACTORIES.map((_, i) => (
+            <button key={i} onClick={() => { setFade(false); setTimeout(() => { setImgIdx(i); setFade(true); }, 250); }}
+              style={{ width: i===imgIdx ? '28px' : '8px', height:'8px', borderRadius:'100px', background: i===imgIdx ? '#f59e0b' : 'rgba(255,255,255,0.3)', border:'none', cursor:'pointer', transition:'all 0.3s', padding:0 }} />
+          ))}
+        </div>
+      </div>
+
+      {/* STATS STRIP */}
+      <div {...rv('stats')} style={{ ...rv('stats').style, background:'#0f172a' }}>
+        <div style={{ maxWidth:'1240px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:0, padding:'0 5%' }}>
+          {STATS.map((s, i) => (
+            <div key={i} style={{ textAlign:'center', padding:'3rem 1rem', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+              <p style={{ fontFamily:"'Playfair Display', serif", fontSize:'3rem', fontWeight:700, color:'#f59e0b', lineHeight:1, marginBottom:'8px' }}>{s.num}</p>
+              <p style={{ fontSize:'0.68rem', color:'rgba(255,255,255,0.35)', fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', margin:0 }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* STORY */}
+      <div style={{ maxWidth:'1240px', margin:'0 auto', padding:'8rem 5%' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6rem', alignItems:'center' }} className="story-grid">
+          <div {...rv('story-l')}>
+            <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1.5rem' }}>Our Story</p>
+            <h2 style={{ fontFamily:"'Playfair Display', serif", fontSize:'clamp(2.2rem, 3.5vw, 3.2rem)', fontWeight:700, color:'#0f172a', lineHeight:1.12, letterSpacing:'-0.5px', marginBottom:'2rem' }}>
+              A Problem That<br />Needed Solving
+            </h2>
+            <div style={{ width:'48px', height:'3px', background:'#f59e0b', borderRadius:'2px', marginBottom:'2rem' }} />
+            <p style={{ fontSize:'0.96rem', color:'#475569', lineHeight:1.9, marginBottom:'1.5rem' }}>
+              Every day in Pithampur, factories with goods ready to ship spent hours chasing trucks. Brokers overcharged. Drivers ran empty on return trips. The system was broken — and nobody was fixing it.
+            </p>
+            <p style={{ fontSize:'0.96rem', color:'#475569', lineHeight:1.9, marginBottom:'2.5rem' }}>
+              Nitin Prajapati grew up watching this. After NIT Trichy, he came back and built SWIFTO — end to end, alone — to solve the problem that had slowed India's industrial backbone for years.
+            </p>
+            <div style={{ borderLeft:'4px solid #f59e0b', paddingLeft:'1.5rem' }}>
+              <p style={{ fontFamily:"'Playfair Display', serif", fontSize:'1.1rem', fontStyle:'italic', color:'#0f172a', lineHeight:1.7, margin:'0 0 0.75rem' }}>
+                "My vision is an India where no factory ever waits for a truck."
               </p>
-              <div style={{ height: '1px', background: 'rgba(230,57,70,0.15)', marginBottom: '1.25rem' }} />
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'rgba(230,57,70,0.6)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>Our Mission</div>
-              {['Deliver the highest quality freight service by maximizing cost efficiency and meeting every deadline.',
-                'Build a workforce driven by excellence, accountability, and continuous improvement.',
-                'Foster teamwork and create an environment where talent thrives.'].map((m, i) => (
-                <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#e63946', marginTop: '7px', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.65 }}>{m}</span>
-                </div>
-              ))}
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', margin: '1rem 0 0', fontStyle: 'italic' }}>— Nitin Prajapati, Founder & CEO</p>
+              <p style={{ fontSize:'0.7rem', fontWeight:700, color:'#94a3b8', letterSpacing:'1px', margin:0 }}>
+                NITIN PRAJAPATI — FOUNDER & CEO
+              </p>
+            </div>
+          </div>
+
+          <div {...rv('story-r', 0.2)} style={{ ...rv('story-r', 0.2).style, position:'relative' }}>
+            <div style={{ borderRadius:'20px', overflow:'hidden', height:'440px' }}>
+              <img src={factory2} alt="factory" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+            </div>
+            <div style={{ position:'absolute', bottom:'-1.5rem', left:'-1.5rem', background:'white', borderRadius:'16px', padding:'1.25rem 1.5rem', boxShadow:'0 16px 48px rgba(0,0,0,0.12)', border:'1px solid #f1f5f9' }}>
+              <p style={{ fontFamily:"'Playfair Display', serif", fontSize:'2rem', fontWeight:700, color:'#f59e0b', lineHeight:1, margin:'0 0 4px' }}>1,500+</p>
+              <p style={{ fontSize:'0.68rem', fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'1px', margin:0 }}>Pithampur Factories</p>
+            </div>
+            <div style={{ position:'absolute', top:'1.5rem', right:'-1rem', background:'#0f172a', borderRadius:'10px', padding:'0.75rem 1.25rem', boxShadow:'0 8px 32px rgba(0,0,0,0.25)' }}>
+              <p style={{ fontSize:'0.62rem', fontWeight:700, color:'#f59e0b', letterSpacing:'2px', textTransform:'uppercase', margin:0 }}>Pithampur, MP</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── CLIENT TRUST STRIP ── */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)', padding: '2rem 5%', overflow: 'hidden' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
-          <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 800, color: 'rgba(255,255,255,0.25)', letterSpacing: '2.5px', textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-            Trusted by India's Leading Factories & Businesses
-          </p>
-          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-            {clients.map((c, i) => (
-              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '100px', padding: '0.5rem 1.25rem', fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.3px', transition: 'all 0.2s', cursor: 'default' }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'rgba(230,57,70,0.3)'; e.currentTarget.style.background = 'rgba(230,57,70,0.06)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
-                {c}
+      {/* CLIENTS MARQUEE */}
+      <div style={{ background:'#0f172a', padding:'2.5rem 0', overflow:'hidden', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
+        <p style={{ textAlign:'center', fontSize:'0.58rem', fontWeight:700, color:'rgba(255,255,255,0.2)', letterSpacing:'3px', textTransform:'uppercase', marginBottom:'1.5rem' }}>
+          Trusted by India's Leading Industries
+        </p>
+        <div style={{ display:'flex', gap:0, animation:'marquee 22s linear infinite', width:'max-content' }}>
+          {[...CLIENTS, ...CLIENTS].map((c, i) => (
+            <span key={i} style={{ padding:'0 2.5rem', fontSize:'0.85rem', fontWeight:600, color:'rgba(255,255,255,0.22)', borderRight:'1px solid rgba(255,255,255,0.07)', whiteSpace:'nowrap', letterSpacing:'0.3px' }}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* WHY SWIFTO */}
+      <div style={{ maxWidth:'1240px', margin:'0 auto', padding:'8rem 5%' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'280px 1fr', gap:'6rem', alignItems:'start' }} className="why-grid">
+          <div {...rv('why-l')} style={{ ...rv('why-l').style, position:'sticky', top:'120px' }}>
+            <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1.5rem' }}>The Difference</p>
+            <h2 style={{ fontFamily:"'Playfair Display', serif", fontSize:'3rem', fontWeight:700, color:'#0f172a', lineHeight:1.1, letterSpacing:'-0.5px', marginBottom:'1.5rem' }}>
+              Why<br />SWIFTO?
+            </h2>
+            <div style={{ width:'48px', height:'3px', background:'#f59e0b', borderRadius:'2px', marginBottom:'1.5rem' }} />
+            <p style={{ fontSize:'0.88rem', color:'#64748b', lineHeight:1.8 }}>
+              Six reasons India's top factories choose SWIFTO over traditional freight brokers.
+            </p>
+          </div>
+
+          <div {...rv('why-r')}>
+            {WHY.map((w, i) => (
+              <div key={i} className="why-row" style={{ padding:'1.75rem 0', borderBottom:'1px solid #e2e8f0', display:'grid', gridTemplateColumns:'72px 1fr', gap:'1.5rem', alignItems:'flex-start' }}>
+                <span className="why-num" style={{ fontFamily:"'Playfair Display', serif", fontSize:'2.2rem', fontWeight:700, color:'#e2e8f0', lineHeight:1, transition:'color 0.25s' }}>{w.num}</span>
+                <div>
+                  <h3 style={{ fontSize:'0.96rem', fontWeight:800, color:'#0f172a', marginBottom:'0.4rem' }}>{w.title}</h3>
+                  <p style={{ fontSize:'0.85rem', color:'#64748b', lineHeight:1.7, margin:0 }}>{w.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── VALUES ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '5rem 5%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#e63946', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>What We Stand For</div>
-          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 900, letterSpacing: '-1.5px' }}>
-            Our Core <span style={{ color: '#e63946' }}>Values</span>
-          </h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-          {values.map((v, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '2rem', transition: 'all 0.25s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.055)'; e.currentTarget.style.borderColor = 'rgba(230,57,70,0.25)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(230,57,70,0.1)', border: '1px solid rgba(230,57,70,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', marginBottom: '1.25rem' }}>{v.icon}</div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.6rem', color: 'white' }}>{v.title}</h3>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>{v.desc}</p>
-            </div>
-          ))}
+      {/* TEAM */}
+      <div style={{ background:'#0f172a', padding:'8rem 5%' }}>
+        <div style={{ maxWidth:'1240px', margin:'0 auto' }}>
+          <div {...rv('team-h')} style={{ ...rv('team-h').style, marginBottom:'4rem' }}>
+            <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1rem' }}>Our People</p>
+            <h2 style={{ fontFamily:"'Playfair Display', serif", fontSize:'clamp(2rem, 3.5vw, 3rem)', fontWeight:700, color:'white', letterSpacing:'-0.5px', margin:0 }}>
+              The Leadership Team
+            </h2>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'1rem' }} className="team-grid">
+            {TEAM.map((t, i) => (
+              <div key={i} {...rv(`tm${i}`, i * 0.08)} style={{ ...rv(`tm${i}`, i * 0.08).style }}>
+                <div className="team-card" style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'20px', overflow:'hidden' }}>
+                  <div style={{ height:'3px', background:`linear-gradient(90deg, ${t.accent}, transparent)` }} />
+                  <div style={{ padding:'1.25rem', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:'0.75rem' }}>
+                    <div style={{ width:'72px', height:'88px', borderRadius:'12px', background:`${t.accent}1a`, border:`1.5px solid ${t.accent}40`, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      {t.photo
+                        ? <img src={t.photo} alt={t.name} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top' }} />
+                        : <span style={{ fontFamily:"'Playfair Display', serif", fontWeight:700, fontSize:'1.7rem', color:t.accent }}>{t.initials}</span>
+                      }
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize:'0.85rem', fontWeight:800, color:'white', marginBottom:'4px' }}>{t.name}</h3>
+                      <p style={{ fontSize:'0.58rem', fontWeight:700, color:t.accent, textTransform:'uppercase', letterSpacing:'0.8px', margin:0, lineHeight:1.5 }}>{t.role}</p>
+                    </div>
+                    <div style={{ display:'flex', gap:'5px', flexWrap:'wrap', justifyContent:'center' }}>
+                      {t.tags.map(tag => (
+                        <span key={tag} style={{ fontSize:'0.58rem', fontWeight:700, color:t.accent, background:`${t.accent}18`, border:`1px solid ${t.accent}2e`, padding:'2px 8px', borderRadius:'100px' }}>{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ height:'1px', background:'rgba(255,255,255,0.06)', margin:'0 1.25rem' }} />
+                  <div style={{ padding:'1rem 1.25rem 1.5rem' }}>
+                    <p style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.45)', lineHeight:1.75, margin:0 }}>{t.desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── WHY SWIFTO ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 5% 6rem' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      {/* COVERAGE */}
+      <div style={{ maxWidth:'1240px', margin:'0 auto', padding:'8rem 5%' }}>
+        <div {...rv('cov-h')} style={{ ...rv('cov-h').style, display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4rem', alignItems:'end', marginBottom:'3.5rem' }} className="cov-header">
           <div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#e63946', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Why Choose Us</div>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 900, letterSpacing: '-1.5px', margin: 0 }}>
-              The SWIFTO <span style={{ color: '#e63946' }}>Advantage</span>
+            <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1rem' }}>Pan India Network</p>
+            <h2 style={{ fontFamily:"'Playfair Display', serif", fontSize:'clamp(2rem, 3.5vw, 3rem)', fontWeight:700, color:'#0f172a', letterSpacing:'-0.5px', margin:0, lineHeight:1.12 }}>
+              We Deliver<br />Everywhere.
             </h2>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', maxWidth: '320px', lineHeight: 1.65 }}>
-            Six reasons why India's top factories choose SWIFTO over traditional freight brokers.
+          <p style={{ fontSize:'0.93rem', color:'#64748b', lineHeight:1.8, margin:0 }}>
+            28+ cities across 8 states. From Pithampur to every corner of India — no route too far.
           </p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
-          {why.map((w, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '2rem', position: 'relative', overflow: 'hidden', transition: 'all 0.25s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.055)'; e.currentTarget.style.borderColor = 'rgba(230,57,70,0.25)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontFamily: 'Manrope, sans-serif', fontSize: '2.5rem', fontWeight: 900, color: 'rgba(255,255,255,0.04)', lineHeight: 1 }}>{w.num}</div>
-              <div style={{ width: '40px', height: '3px', background: '#e63946', borderRadius: '2px', marginBottom: '1.25rem' }} />
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '1.05rem', marginBottom: '0.6rem' }}>{w.title}</h3>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>{w.desc}</p>
+        <div {...rv('cov-g')} style={{ ...rv('cov-g').style, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(230px, 1fr))', gap:'1px', background:'#e2e8f0', borderRadius:'16px', overflow:'hidden' }}>
+          {COVERAGE.map((c, i) => (
+            <div key={i} className="cov-cell" style={{ background:'white', padding:'1.5rem', transition:'background 0.2s' }}>
+              <div style={{ width:'22px', height:'3px', background:'#f59e0b', borderRadius:'2px', marginBottom:'0.75rem' }} />
+              <h3 style={{ fontSize:'0.86rem', fontWeight:800, color:'#0f172a', marginBottom:'0.35rem' }}>{c.region}</h3>
+              <p style={{ fontSize:'0.73rem', color:'#94a3b8', lineHeight:1.7, margin:0 }}>{c.cities}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── TEAM ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 5% 6rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#e63946', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Our People</div>
-          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 900, letterSpacing: '-1.5px' }}>
-            Leadership Team of <span style={{ color: '#e63946' }}>SWIFTO</span>
+      {/* CTA */}
+      <div style={{ margin:'0 5% 6rem', borderRadius:'28px', overflow:'hidden', position:'relative' }}>
+        <img src={factory4} alt="" style={{ width:'100%', height:'460px', objectFit:'cover', display:'block', filter:'brightness(0.28)' }} />
+        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', padding:'3rem' }}>
+          <p style={{ fontSize:'0.63rem', fontWeight:700, color:'#f59e0b', letterSpacing:'4px', textTransform:'uppercase', marginBottom:'1.25rem' }}>Get Started Today</p>
+          <h2 style={{ fontFamily:"'Playfair Display', serif", fontSize:'clamp(2rem, 4vw, 3.5rem)', fontWeight:700, color:'white', letterSpacing:'-0.5px', lineHeight:1.1, marginBottom:'1.25rem', maxWidth:'580px' }}>
+            Ready to Move<br />Your Next Load?
           </h2>
-          <div style={{ width: '60px', height: '3px', background: 'linear-gradient(90deg, #e63946, transparent)', borderRadius: '2px', margin: '1rem auto 0' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {team.map((t, i) => (
-            <div key={i}
-              onMouseEnter={() => setHoveredMember(i)}
-              onMouseLeave={() => setHoveredMember(null)}
-              style={{
-                background: hoveredMember === i ? 'rgba(255,255,255,0.055)' : 'rgba(255,255,255,0.025)',
-                border: `1px solid ${hoveredMember === i ? t.color + '40' : 'rgba(255,255,255,0.07)'}`,
-                borderRadius: '20px', overflow: 'hidden',
-                display: 'grid',
-                gridTemplateColumns: '240px 1fr',
-                transition: 'all 0.3s',
-                position: 'relative',
-                boxShadow: hoveredMember === i ? `0 8px 40px ${t.color}15` : 'none',
-              }}>
-
-              {/* Left color bar */}
-              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: t.color, borderRadius: '20px 0 0 20px', opacity: hoveredMember === i ? 1 : 0.4, transition: 'opacity 0.3s' }} />
-
-              {/* LEFT — Photo + Name */}
-              <div style={{
-                background: `linear-gradient(160deg, ${t.color}18 0%, ${t.color}06 100%)`,
-                borderRight: '1px solid rgba(255,255,255,0.06)',
-                padding: '2.5rem 2rem',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem',
-                textAlign: 'center',
-              }}>
-                {/* Number */}
-                <div style={{ position: 'absolute', top: '1.25rem', left: '1.25rem', fontFamily: 'Manrope, sans-serif', fontSize: '0.75rem', fontWeight: 900, color: t.color, opacity: 0.5 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </div>
-
-                {/* Photo placeholder */}
-                <div style={{
-                  width: '140px', height: '170px', borderRadius: '16px',
-                  background: `linear-gradient(135deg, ${t.color}33, ${t.color}11)`,
-                  border: `2px solid ${t.color}50`,
-                  overflow: 'hidden',
-                  boxShadow: hoveredMember === i ? `0 12px 40px ${t.color}40` : `0 4px 24px rgba(0,0,0,0.5)`,
-                  transition: 'box-shadow 0.3s',
-                  position: 'relative',
-                  flexShrink: 0,
-                }}>
-                  {t.photo
-                    ? <img src={t.photo} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
-                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '2.5rem', color: t.color }}>{t.initials}</div>
-                  }
-                </div>
-
-                <div>
-                  <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '1rem', color: 'white', margin: '0 0 0.3rem' }}>{t.name}</h3>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 700, color: t.color, textTransform: 'uppercase', letterSpacing: '0.8px', lineHeight: 1.5, margin: 0 }}>{t.role}</p>
-                </div>
-
-                {/* Tags */}
-                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {t.tags.map(tag => (
-                    <span key={tag} style={{ fontSize: '0.58rem', fontWeight: 700, color: t.color, background: t.color + '18', border: `1px solid ${t.color}30`, padding: '2px 8px', borderRadius: '100px' }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* RIGHT — Bio */}
-              <div style={{ padding: '2.5rem 3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
-                  <div style={{ width: '28px', height: '2px', background: t.color, borderRadius: '2px' }} />
-                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: t.color, letterSpacing: '2px', textTransform: 'uppercase' }}>Profile</span>
-                </div>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', lineHeight: 1.9, margin: 0, textAlign: 'justify' }}>{t.desc}</p>
-              </div>
-
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── COVERAGE ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 5% 6rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#e63946', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Pan India Network</div>
-          <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 2.75rem)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: '0.5rem' }}>
-            Our <span style={{ color: '#e63946' }}>Coverage Areas</span>
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>28+ cities across 8 major regions</p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-          {coverage.map((c, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '1.25rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.055)'; e.currentTarget.style.borderColor = 'rgba(230,57,70,0.2)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#e63946', marginTop: '5px', flexShrink: 0, boxShadow: '0 0 8px rgba(230,57,70,0.5)' }} />
-              <div>
-                <div style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '0.92rem', marginBottom: '0.3rem' }}>{c.region}</div>
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', lineHeight: 1.6 }}>{c.cities}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CTA ── */}
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 5% 7rem' }}>
-        <div style={{ position: 'relative', background: 'linear-gradient(135deg, #e63946 0%, #c1121f 100%)', borderRadius: '28px', padding: '4rem 3rem', textAlign: 'center', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>Get Started Today</p>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, color: 'white', marginBottom: '1rem', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
-              Ready to Ship Smarter?
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1rem', maxWidth: '480px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-              Join thousands of businesses that trust SWIFTO for reliable, fast, and transparent freight logistics.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/booking" style={{ textDecoration: 'none' }}>
-                <button style={{ background: 'white', color: '#e63946', border: 'none', borderRadius: '12px', padding: '1rem 2.25rem', fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                  Book a Delivery
-                </button>
-              </Link>
-              <Link to="/contact" style={{ textDecoration: 'none' }}>
-                <button style={{ background: 'transparent', color: 'white', border: '2px solid rgba(255,255,255,0.4)', borderRadius: '12px', padding: '1rem 2.25rem', fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'white'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'transparent'; }}>
-                  Contact Our Team
-                </button>
-              </Link>
-            </div>
+          <p style={{ fontSize:'0.96rem', color:'rgba(255,255,255,0.5)', maxWidth:'420px', lineHeight:1.75, marginBottom:'2.5rem' }}>
+            10-minute confirmation. Transparent pricing. Real drivers. Real trucks.
+          </p>
+          <div style={{ display:'flex', gap:'12px', flexWrap:'wrap', justifyContent:'center' }}>
+            <Link to="/booking" style={{ textDecoration:'none' }}>
+              <button className="btn-amber">Book a Delivery</button>
+            </Link>
+            <Link to="/driver-partner" style={{ textDecoration:'none' }}>
+              <button className="btn-ghost">Join as Driver</button>
+            </Link>
           </div>
         </div>
       </div>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
-      `}</style>
     </div>
   );
 }
 
-export default About;
+const CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  button { font-family: inherit; }
+
+  .btn-amber {
+    background: #f59e0b; color: #0f172a; border: none;
+    border-radius: 10px; padding: 13px 28px;
+    font-weight: 800; font-size: 0.92rem;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.2px;
+  }
+  .btn-amber:hover { background: #d97706; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.4); }
+
+  .btn-ghost {
+    background: transparent; color: rgba(255,255,255,0.75);
+    border: 1.5px solid rgba(255,255,255,0.25); border-radius: 10px;
+    padding: 13px 28px; font-weight: 600; font-size: 0.92rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.6); color: white; }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .why-row { transition: padding 0.2s; cursor: default; }
+  .why-row:hover { padding-left: 8px !important; }
+  .why-row:hover .why-num { color: #f59e0b !important; }
+
+  .team-card { transition: transform 0.25s, box-shadow 0.25s; }
+  .team-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
+
+  @media (max-width: 1100px) {
+    .team-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  }
+  @media (max-width: 700px) {
+    .team-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+
+  .cov-cell:hover { background: #fffbeb !important; }
+
+  @media (max-width: 900px) {
+    .story-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
+    .why-grid   { grid-template-columns: 1fr !important; gap: 2rem !important; }
+    .cov-header { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
+  }
+  @media (max-width: 600px) {
+    div[style*="repeat(4,1fr)"] { grid-template-columns: 1fr 1fr !important; }
+  }
+`;

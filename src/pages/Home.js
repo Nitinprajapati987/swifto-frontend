@@ -30,12 +30,6 @@ const testimonials = [
   },
 ];
 
-const stats = [
-  { value: '20+',    label: 'Factories Served', sub: 'Pithampur and Pan India', gradient: 'linear-gradient(135deg, #b45309, #f59e0b)' },
-  { value: '2500+',  label: 'Trucks Network',   sub: 'MP, MH, RJ and more',    gradient: 'linear-gradient(135deg, #be185d, #ec4899)' },
-  { value: '10 Min', label: 'Truck Confirm',    sub: 'Average time',            gradient: 'linear-gradient(135deg, #065f46, #10b981)' },
-  { value: '24hr',   label: 'Payment',          sub: 'Guaranteed',              gradient: 'linear-gradient(135deg, #1e3a5f, #2563eb)' },
-];
 
 function Home() {
   return (
@@ -105,32 +99,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div style={{ background: '#f0f0ff', padding: '4rem 5%' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-          {stats.map((s, i) => (
-            <div key={i}
-              style={{
-                background: s.gradient,
-                borderRadius: '24px',
-                padding: '2.75rem 2rem',
-                color: 'white',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(0,0,0,0.16)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '90px', height: '90px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
-              <p style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2.4rem, 4.5vw, 3.2rem)', fontWeight: 900, color: 'white', marginBottom: '0.35rem' }}>{s.value}</p>
-              <p style={{ fontWeight: 700, fontSize: '1.05rem', color: 'white', marginBottom: '0.25rem' }}>{s.label}</p>
-              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.75)' }}>{s.sub}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <WhySWIFTO />
       <Footer />

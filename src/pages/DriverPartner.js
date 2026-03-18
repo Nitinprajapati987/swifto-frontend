@@ -1,180 +1,248 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { driverAPI } from '../services/api';
+import axios from 'axios';
+import driver1 from '../assets/logos/driver1.png';
+import driver2 from '../assets/logos/driver2.png';
+import driver3 from '../assets/logos/driver3.png';
 
-const BG = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+const IMAGES     = [driver1, driver2, driver3];
+const API_BASE   = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const BENEFITS   = [
+  { num:'Rs.2L+', label:'Avg Monthly Earning', sub:'Per truck, per month' },
+  { num:'24 Hr',  label:'Payment Release',     sub:'Direct bank transfer' },
+  { num:'500+',   label:'Active Drivers',       sub:'Already earning' },
+  { num:'10K+',   label:'Trips Completed',      sub:'And counting' },
+];
+const CITIES      = ['Indore','Pithampur','Bhopal','Dewas','Ujjain','Mumbai','Pune','Nagpur','Delhi','Ahmedabad','Jaipur','Surat','Hyderabad','Bangalore','Chennai'];
+const VEHICLES    = ['Two Wheeler / Bike','Car / Sedan','7 ft Truck','10 ft Truck','14 ft Truck','19 ft Truck','22 ft Truck','24 ft Truck','28 ft Truck','32 ft Truck','20 ft Container','40 ft Container','Dumper','Tanker','Trailer / Flatbed'];
+const SOURCES     = ['Google Search','WhatsApp','Friend / Colleague','Facebook / Instagram','Transport Company','Other'];
+const EXPERIENCES = ['0-1 Year','1-3 Years','3-5 Years','5-10 Years','10+ Years'];
+const ROUTES      = ['Mumbai','Pune','Delhi','Ahmedabad','Surat','Jaipur','Nagpur','Hyderabad','Bangalore','Chennai','Kolkata','Lucknow','Raipur','Bhopal','Nashik','Vadodara','Chandigarh','Gujarat','Maharashtra','Rajasthan','Uttar Pradesh','Pan India'];
 
-function DriverPartner() {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    name: '', phone: '', city: '', vehicle: '',
-    source: '', rcNumber: '', licenseNumber: '',
-    experience: '', fleetSize: '1',
-    routes: [],
-    fitnessCertNumber: '',
-  });
-  const [errors, setErrors]     = useState({});
-  const [loading, setLoading]   = useState(false);
-  const [apiError, setApiError] = useState('');
-
-  const cities      = ['Indore','Pithampur','Bhopal','Dewas','Ujjain','Mumbai','Pune','Nagpur','Delhi','Ahmedabad','Jaipur','Surat','Hyderabad','Bangalore','Chennai'];
-  const vehicles    = ['Two Wheeler / Bike','Car / Sedan','7 ft Truck','10 ft Truck','14 ft Truck','19 ft Truck','22 ft Truck','24 ft Truck','28 ft Truck','32 ft Truck','20 ft Container','40 ft Container','Dumper','Tanker','Trailer / Flatbed'];
-  const sources     = ['Google Search','WhatsApp','Friend / Colleague','Facebook / Instagram','Transport Company','Other'];
-  const experiences = ['0-1 Year','1-3 Years','3-5 Years','5-10 Years','10+ Years'];
-  const routeOptions = ['Mumbai','Pune','Delhi','Ahmedabad','Surat','Jaipur','Nagpur','Hyderabad','Bangalore','Chennai','Kolkata','Lucknow','Raipur','Bhopal','Nashik','Vadodara','Chandigarh','Gujarat','Maharashtra','Rajasthan','Uttar Pradesh','Pan India'];
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
-    setApiError('');
-  };
-
-  const handleUpperCase = (fieldName) => (e) => {
-    handleChange({ target: { name: fieldName, value: e.target.value.toUpperCase() } });
-  };
-
-  const toggleRoute = (route) => {
-    const current = form.routes;
-    if (current.includes(route)) {
-      setForm({ ...form, routes: current.filter(r => r !== route) });
-    } else {
-      setForm({ ...form, routes: [...current, route] });
-    }
-    if (errors.routes) setErrors({ ...errors, routes: '' });
-  };
-
-  const validateStep1 = () => {
-    const e = {};
-    if (!form.name.trim())  e.name  = 'Full name is required';
-    if (!form.phone.trim()) e.phone = 'Phone number is required';
-    else if (!/^[6-9]\d{9}$/.test(form.phone)) e.phone = 'Enter a valid 10-digit number';
-    if (!form.city) e.city = 'Please select your city';
-    return e;
-  };
-
-  const validateStep2 = () => {
-    const e = {};
-    if (!form.vehicle)              e.vehicle    = 'Please select your vehicle type';
-    if (!form.experience)           e.experience = 'Please select your experience';
-    if (form.routes.length === 0)   e.routes     = 'Please select at least one route';
-    return e;
-  };
-
-  const validateStep3 = () => {
-    const e = {};
-    if (!form.rcNumber.trim())      e.rcNumber      = 'RC Number is required';
-    if (!form.licenseNumber.trim()) e.licenseNumber = 'License Number is required';
-    return e;
-  };
-
-  const nextStep = async () => {
-    let e = {};
-    if (step === 1) e = validateStep1();
-    if (step === 2) e = validateStep2();
-    if (step === 3) e = validateStep3();
-    if (Object.keys(e).length > 0) { setErrors(e); return; }
-    setErrors({});
-    if (step < 3) {
-      setStep(step + 1);
-    } else {
-      setLoading(true); setApiError('');
-      try {
-        await driverAPI.register(form);
-        setStep(4);
-      } catch (err) {
-        setApiError(err.response?.data?.message || 'Registration failed. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const inputStyle = (hasError) => ({
-    width: '100%', padding: '0.85rem 1rem', borderRadius: '10px',
-    border: `1.5px solid ${hasError ? '#ef4444' : 'rgba(255,255,255,0.15)'}`,
-    fontSize: '0.9rem', outline: 'none', color: 'white',
-    background: 'rgba(255,255,255,0.08)', boxSizing: 'border-box',
-    fontFamily: 'DM Sans, sans-serif',
-  });
-
-  const labelStyle = {
-    fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)',
-    display: 'block', marginBottom: '6px', fontWeight: 600,
-  };
-
-  const StepIndicator = () => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-      {[
-        { num: 1, label: 'Basic Info' },
-        { num: 2, label: 'Vehicle & Routes' },
-        { num: 3, label: 'Documents' },
-      ].map((s, i) => (
-        <React.Fragment key={s.num}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-            <div style={{
-              width: '36px', height: '36px', borderRadius: '50%',
-              background: step >= s.num ? '#e63946' : 'rgba(255,255,255,0.1)',
-              color: step >= s.num ? 'white' : 'rgba(255,255,255,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 800, fontSize: '0.9rem',
-              border: step === s.num ? '3px solid rgba(230,57,70,0.5)' : 'none',
-              transition: 'all 0.3s',
-            }}>
-              {step > s.num ? '✓' : s.num}
-            </div>
-            <span style={{ fontSize: '0.65rem', color: step >= s.num ? '#e63946' : 'rgba(255,255,255,0.3)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-              {s.label}
-            </span>
-          </div>
-          {i < 2 && (
-            <div style={{ height: '2px', width: '50px', marginBottom: '18px', background: step > s.num ? '#e63946' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
-          )}
-        </React.Fragment>
-      ))}
+function Field({ label, error, optional, children }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
+      <label style={{ fontSize:'0.7rem', fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:'0.8px', display:'flex', alignItems:'center', gap:'6px' }}>
+        {label}
+        {optional && <span style={{ fontSize:'0.6rem', fontWeight:600, color:'#94a3b8', background:'#f1f5f9', padding:'1px 7px', borderRadius:'100px', textTransform:'none', letterSpacing:0 }}>Optional</span>}
+      </label>
+      {children}
+      {error && <p style={{ fontSize:'0.7rem', color:'#ef4444', margin:0 }}>{error}</p>}
     </div>
   );
+}
 
-  // SUCCESS SCREEN
+const inp = (hasErr) => ({
+  width:'100%', padding:'10px 13px',
+  border:`1.5px solid ${hasErr ? '#fca5a5' : '#e2e8f0'}`,
+  borderRadius:'10px', fontSize:'0.88rem',
+  color:'#0f172a', background: hasErr ? '#fff5f5' : '#f8fafc',
+  outline:'none', transition:'all 0.18s', fontFamily:'inherit',
+});
+
+export default function DriverPartner() {
+  const [step, setStep]               = useState(1);
+  const [form, setForm]               = useState({ name:'', phone:'', city:'', vehicle:'', source:'', rcNumber:'', licenseNumber:'', experience:'', fleetSize:'1', routes:[], fitnessCertNumber:'' });
+  const [errors, setErrors]           = useState({});
+  const [loading, setLoading]         = useState(false);
+  const [apiError, setApiError]       = useState('');
+  const [imgIdx, setImgIdx]           = useState(0);
+  const [imgFade, setImgFade]         = useState(true);
+  const [visible, setVisible]         = useState({});
+  const refs                          = useRef({});
+  const intervalRef                   = useRef(null);
+
+  // OTP states
+  const [otpSent, setOtpSent]         = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp]                 = useState('');
+  const [sessionId, setSessionId]     = useState('');
+  const [otpLoading, setOtpLoading]   = useState(false);
+  const [otpError, setOtpError]       = useState('');
+  const [otpSuccess, setOtpSuccess]   = useState('');
+  const [countdown, setCountdown]     = useState(0);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setImgFade(false);
+      setTimeout(() => { setImgIdx(i => (i + 1) % IMAGES.length); setImgFade(true); }, 250);
+    }, 3500);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) setVisible(p => ({ ...p, [e.target.dataset.id]: true }));
+      }),
+      { threshold: 0.08 }
+    );
+    Object.values(refs.current).forEach(el => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  const rv = (id, delay = 0) => ({
+    ref: el => { refs.current[id] = el; },
+    'data-id': id,
+    style: {
+      opacity: visible[id] ? 1 : 0,
+      transform: visible[id] ? 'translateY(0)' : 'translateY(22px)',
+      transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+    },
+  });
+
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
+    setApiError('');
+    if (e.target.name === 'phone') {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtp('');
+      setOtpError('');
+      setOtpSuccess('');
+      setCountdown(0);
+    }
+  };
+
+  const handleUpper = name => e => handleChange({ target: { name, value: e.target.value.toUpperCase() } });
+
+  const toggleRoute = route => {
+    setForm(p => ({ ...p, routes: p.routes.includes(route) ? p.routes.filter(r => r !== route) : [...p.routes, route] }));
+    setErrors(p => ({ ...p, routes: '' }));
+  };
+
+  // Send OTP
+  const sendOTP = async () => {
+    if (!form.phone.trim() || !/^[6-9]\d{9}$/.test(form.phone)) {
+      setErrors(p => ({ ...p, phone: 'Enter valid 10-digit number first' }));
+      return;
+    }
+    setOtpLoading(true);
+    setOtpError('');
+    setOtpSuccess('');
+    try {
+      const res = await axios.post(`${API_BASE}/api/auth/send-otp`, { phone: form.phone });
+      setSessionId(res.data.sessionId || '');
+      setOtpSent(true);
+      setCountdown(30);
+      setOtpSuccess(`OTP sent to +91 ${form.phone} via SMS`);
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Failed to send OTP. Try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Verify OTP
+  const verifyOTP = async () => {
+    if (!otp || otp.length < 4) { setOtpError('Enter the OTP received'); return; }
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      await axios.post(`${API_BASE}/api/auth/verify-otp`, { phone: form.phone, otp, sessionId });
+      setOtpVerified(true);
+      setOtpSuccess('Phone verified!');
+      setOtpError('');
+      setErrors(p => ({ ...p, otp: '' }));
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Invalid OTP. Try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const validate = () => {
+    const e = {};
+    if (step === 1) {
+      if (!form.name.trim())  e.name = 'Full name required';
+      if (!form.phone.trim()) e.phone = 'Phone required';
+      else if (!/^[6-9]\d{9}$/.test(form.phone)) e.phone = 'Enter valid 10-digit number';
+      if (!otpVerified) e.otp = 'Please verify your phone number with OTP';
+      if (!form.city)   e.city = 'Select your city';
+    }
+    if (step === 2) {
+      if (!form.vehicle)       e.vehicle    = 'Select vehicle type';
+      if (!form.experience)    e.experience = 'Select experience';
+      if (!form.routes.length) e.routes     = 'Select at least one route';
+    }
+    if (step === 3) {
+      if (!form.rcNumber.trim())      e.rcNumber      = 'RC Number required';
+      if (!form.licenseNumber.trim()) e.licenseNumber = 'License Number required';
+    }
+    return e;
+  };
+
+  const handleNext = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setErrors({});
+    if (step < 3) { setStep(step + 1); return; }
+    setLoading(true); setApiError('');
+    try {
+      await driverAPI.register(form);
+      setStep(4);
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Registration failed. Try again.');
+    } finally { setLoading(false); }
+  };
+
+  // SUCCESS
   if (step === 4) {
     return (
-      <div style={{ background: BG, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ minHeight:'100vh', background:'#f7f6f3', fontFamily:"'Plus Jakarta Sans', sans-serif" }}>
+        <style>{CSS}</style>
         <Navbar />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
-          <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '3rem 2rem', maxWidth: '480px', width: '100%' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-            <h2 style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.75rem', fontWeight: 900, color: 'white', marginBottom: '0.5rem' }}>Registration Successful!</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem' }}>Thank you <strong style={{ color: 'white' }}>{form.name}</strong>!</p>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              Our team will contact you at <strong style={{ color: '#e63946' }}>{form.phone}</strong> within 24 hours.
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'90vh', padding:'2rem' }}>
+          <div style={{ background:'white', borderRadius:'24px', padding:'3rem 2.5rem', maxWidth:'520px', width:'100%', textAlign:'center', boxShadow:'0 4px 40px rgba(0,0,0,0.08)', border:'1px solid #e2e8f0' }}>
+            <div style={{ width:'72px', height:'72px', background:'#dcfce7', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1.5rem', fontSize:'2rem', color:'#16a34a', fontWeight:900 }}>✓</div>
+            <h2 style={{ fontSize:'1.6rem', fontWeight:800, color:'#0f172a', marginBottom:'0.5rem', letterSpacing:'-0.5px' }}>Registration Successful!</h2>
+            <p style={{ color:'#64748b', marginBottom:'0.5rem' }}>Welcome, <strong style={{ color:'#0f172a' }}>{form.name}</strong>!</p>
+            <p style={{ color:'#94a3b8', fontSize:'0.88rem', marginBottom:'2rem' }}>
+              Our team will call you at <strong style={{ color:'#f59e0b' }}>{form.phone}</strong> within 24 hours.
             </p>
-            <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'left', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>Registration Summary</p>
-              {[['Name', form.name],['Phone', form.phone],['City', form.city],['Vehicle', form.vehicle],['Experience', form.experience],['RC Number', form.rcNumber],['License', form.licenseNumber],...(form.fitnessCertNumber ? [['Fitness Cert', form.fitnessCertNumber]] : [])].map(([label, val]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</span>
-                  <span style={{ fontWeight: 700, color: 'white' }}>{val}</span>
+            <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'14px', padding:'1.25rem', marginBottom:'1.25rem', textAlign:'left' }}>
+              <p style={{ fontSize:'0.62rem', fontWeight:700, color:'#94a3b8', letterSpacing:'1.5px', textTransform:'uppercase', marginBottom:'0.75rem' }}>Your Registration</p>
+              {[['Name',form.name],['Phone',form.phone],['City',form.city],['Vehicle',form.vehicle],['Experience',form.experience],['RC Number',form.rcNumber],['License',form.licenseNumber]].map(([l,v])=>(
+                <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'5px 0', borderBottom:'1px solid #f1f5f9', fontSize:'0.83rem' }}>
+                  <span style={{ color:'#64748b' }}>{l}</span>
+                  <span style={{ fontWeight:700, color:'#0f172a' }}>{v}</span>
                 </div>
               ))}
               {form.routes.length > 0 && (
-                <div style={{ marginTop: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>Routes: </span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'white' }}>{form.routes.join(', ')}</span>
+                <div style={{ marginTop:'0.75rem' }}>
+                  <p style={{ fontSize:'0.65rem', color:'#94a3b8', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px', marginBottom:'6px' }}>Routes</p>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'4px' }}>
+                    {form.routes.map(r => <span key={r} style={{ fontSize:'0.7rem', fontWeight:600, color:'#f59e0b', background:'#fffbeb', border:'1px solid #fde68a', padding:'2px 8px', borderRadius:'100px' }}>{r}</span>)}
+                  </div>
                 </div>
               )}
             </div>
-            <div style={{ background: 'rgba(230,57,70,0.1)', border: '1px solid rgba(230,57,70,0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', textAlign: 'left' }}>
-              <p style={{ fontWeight: 700, color: '#e63946', fontSize: '0.85rem', marginBottom: '0.5rem' }}>What happens next?</p>
-              {['Documents will be verified within 24 hours','SWIFTO team will call you','Training will be provided','You will start receiving loads on your routes'].map((item, i) => (
-                <p key={i} style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>✓ {item}</p>
+            <div style={{ background:'#fffbeb', border:'1px solid #fde68a', borderRadius:'12px', padding:'1rem', marginBottom:'1.75rem', textAlign:'left' }}>
+              <p style={{ fontSize:'0.75rem', fontWeight:700, color:'#b45309', marginBottom:'0.6rem', textTransform:'uppercase', letterSpacing:'0.8px' }}>What Happens Next</p>
+              {['Documents verified within 24 hours','SWIFTO team will call you','Short onboarding training provided','You start receiving loads on your routes'].map((item,i)=>(
+                <div key={i} style={{ display:'flex', gap:'8px', alignItems:'flex-start', marginBottom:'5px' }}>
+                  <div style={{ width:'16px', height:'16px', borderRadius:'50%', background:'#f59e0b', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:'1px' }}>
+                    <span style={{ fontSize:'0.55rem', color:'#0f172a', fontWeight:900 }}>✓</span>
+                  </div>
+                  <span style={{ fontSize:'0.82rem', color:'#92400e' }}>{item}</span>
+                </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button onClick={() => { setStep(1); setForm({ name: '', phone: '', city: '', vehicle: '', source: '', rcNumber: '', licenseNumber: '', experience: '', fleetSize: '1', routes: [], fitnessCertNumber: '' }); }}
-                style={{ background: '#e63946', color: 'white', border: 'none', borderRadius: '10px', padding: '0.85rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
-                Register Another Vehicle
+            <div style={{ display:'flex', gap:'10px', justifyContent:'center' }}>
+              <button onClick={() => { setStep(1); setForm({name:'',phone:'',city:'',vehicle:'',source:'',rcNumber:'',licenseNumber:'',experience:'',fleetSize:'1',routes:[],fitnessCertNumber:''}); setOtpSent(false); setOtpVerified(false); setOtp(''); }}
+                style={{ background:'#f59e0b', color:'#0f172a', border:'none', borderRadius:'10px', padding:'11px 20px', fontWeight:800, cursor:'pointer', fontSize:'0.88rem', fontFamily:'inherit' }}>
+                Register Another
               </button>
-              <Link to="/"><button style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1.5px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.85rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>Go to Home</button></Link>
+              <Link to="/"><button style={{ background:'white', color:'#64748b', border:'1.5px solid #e2e8f0', borderRadius:'10px', padding:'11px 20px', fontWeight:600, cursor:'pointer', fontSize:'0.88rem', fontFamily:'inherit' }}>Go Home</button></Link>
             </div>
           </div>
         </div>
@@ -183,204 +251,305 @@ function DriverPartner() {
   }
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: BG, minHeight: '100vh' }}>
+    <div style={{ fontFamily:"'Plus Jakarta Sans', sans-serif", background:'#f7f6f3', minHeight:'100vh' }}>
+      <style>{CSS}</style>
       <Navbar />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '7rem 5% 3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
 
-        {/* Left Side */}
-        <div>
-          <h1 style={{ fontFamily: 'Manrope, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: 'white', lineHeight: 1.15, marginBottom: '1rem', letterSpacing: '-1px' }}>
-            Attach Your Vehicle<br/><span style={{ color: '#e63946' }}>Start Earning Today</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '480px', marginBottom: '2rem' }}>
-            Full-time or part-time — become a SWIFTO Partner and get guaranteed loads. Earn on return trips too!
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', maxWidth: '440px', marginBottom: '2rem' }}>
-            {[['Guaranteed Loads','Never run empty'],['24hr Payment','Direct bank transfer'],['Return Load Match','Auto suggestions'],['AI Support','24/7 available'],['Driver App','Coming soon'],['Insurance Cover','Per trip']].map(([title, sub]) => (
-              <div key={title} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.85rem 1rem' }}>
-                <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.82rem', fontWeight: 800, color: 'white' }}>{title}</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>{sub}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-            {[['500+','Active Drivers'],['10K+','Trips Done'],['Rs.2L+','Avg Monthly Earning']].map(([num, label]) => (
-              <div key={label}>
-                <div style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#e63946' }}>{num}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div style={{ position:'relative', overflow:'hidden', background:'#0f172a', minHeight:'88vh', display:'flex', alignItems:'center' }}>
+        <img src={IMAGES[imgIdx]} alt=""
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', opacity: imgFade ? 0.2 : 0, transition:'opacity 0.3s', filter:'grayscale(0.3)' }} />
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(105deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.6) 60%, rgba(15,23,42,0.3) 100%)' }} />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'180px', background:'linear-gradient(to top, #f7f6f3, transparent)' }} />
+        <div style={{ position:'absolute', left:'calc(5% - 20px)', top:'30%', width:'3px', height:'80px', background:'linear-gradient(#f59e0b, transparent)' }} />
 
-        {/* Right Side — Form */}
-        <div style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', borderRadius: '20px', padding: '2rem', boxShadow: '0 8px 48px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <StepIndicator />
-          {apiError && (
-            <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '10px', padding: '0.85rem', marginBottom: '1rem', color: '#fca5a5', fontSize: '0.85rem' }}>
-              {apiError}
+        <div style={{ position:'relative', zIndex:2, maxWidth:'1240px', margin:'0 auto', padding:'9rem 5% 6rem', width:'100%', display:'grid', gridTemplateColumns:'1fr 400px', gap:'5rem', alignItems:'center' }} className="hero-grid">
+
+          <div>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:'8px', background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.25)', borderRadius:'100px', padding:'6px 16px', marginBottom:'2rem' }}>
+              <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#f59e0b' }} />
+              <span style={{ fontSize:'0.62rem', fontWeight:700, color:'#f59e0b', letterSpacing:'3px', textTransform:'uppercase' }}>Driver Partner Program</span>
             </div>
-          )}
-
-          {/* STEP 1 */}
-          {step === 1 && (
-            <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Basic Information</h3>
-              {[['name','Full Name *','Enter your full name','text'],['phone','Mobile Number *','10-digit mobile number','tel']].map(([name, label, ph, type]) => (
-                <div key={name} style={{ marginBottom: '1rem' }}>
-                  <label style={labelStyle}>{label}</label>
-                  <input name={name} value={form[name]} onChange={handleChange} placeholder={ph} type={type} maxLength={name==='phone'?10:undefined} style={inputStyle(errors[name])}
-                    onFocus={e => e.target.style.borderColor='#e63946'} onBlur={e => e.target.style.borderColor=errors[name]?'#ef4444':'rgba(255,255,255,0.15)'} />
-                  {errors[name] && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors[name]}</p>}
+            <h1 style={{ fontSize:'clamp(3rem, 6.5vw, 5.8rem)', fontWeight:800, color:'white', lineHeight:0.95, letterSpacing:'-3px', marginBottom:'2rem' }}>
+              Attach.<br />Earn.<br /><span style={{ color:'#f59e0b' }}>Grow.</span>
+            </h1>
+            <p style={{ fontSize:'1.05rem', color:'rgba(255,255,255,0.5)', lineHeight:1.85, maxWidth:'460px', marginBottom:'3rem' }}>
+              Join SWIFTO's driver network and get guaranteed loads on your route — full-time or part-time. Earn on return trips too.
+            </p>
+            <div style={{ display:'flex', gap:'2.5rem', flexWrap:'wrap' }}>
+              {BENEFITS.map((b, i) => (
+                <div key={i} style={{ borderLeft:'3px solid #f59e0b', paddingLeft:'12px' }}>
+                  <p style={{ fontSize:'1.6rem', fontWeight:800, color:'#f59e0b', lineHeight:1, marginBottom:'3px' }}>{b.num}</p>
+                  <p style={{ fontSize:'0.72rem', fontWeight:700, color:'white', marginBottom:'1px' }}>{b.label}</p>
+                  <p style={{ fontSize:'0.65rem', color:'rgba(255,255,255,0.35)', margin:0 }}>{b.sub}</p>
                 </div>
               ))}
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>City *</label>
-                <select name="city" value={form.city} onChange={handleChange} style={{ ...inputStyle(errors.city), cursor: 'pointer' }}>
-                  <option value="" style={{ background: '#1a1a2e' }}>Select your city</option>
-                  {cities.map(c => <option key={c} value={c} style={{ background: '#1a1a2e' }}>{c}</option>)}
-                </select>
-                {errors.city && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.city}</p>}
-              </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={labelStyle}>How did you hear about us?</label>
-                <select name="source" value={form.source} onChange={handleChange} style={{ ...inputStyle(false), cursor: 'pointer' }}>
-                  <option value="" style={{ background: '#1a1a2e' }}>Select source</option>
-                  {sources.map(s => <option key={s} value={s} style={{ background: '#1a1a2e' }}>{s}</option>)}
-                </select>
-              </div>
             </div>
-          )}
+          </div>
 
-          {/* STEP 2 */}
-          {step === 2 && (
-            <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>Vehicle & Routes</h3>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>Vehicle Type *</label>
-                <select name="vehicle" value={form.vehicle} onChange={handleChange} style={{ ...inputStyle(errors.vehicle), cursor: 'pointer' }}>
-                  <option value="" style={{ background: '#1a1a2e' }}>Select your vehicle</option>
-                  {vehicles.map(v => <option key={v} value={v} style={{ background: '#1a1a2e' }}>{v}</option>)}
-                </select>
-                {errors.vehicle && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.vehicle}</p>}
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>Driving Experience *</label>
-                <select name="experience" value={form.experience} onChange={handleChange} style={{ ...inputStyle(errors.experience), cursor: 'pointer' }}>
-                  <option value="" style={{ background: '#1a1a2e' }}>Select experience</option>
-                  {experiences.map(e => <option key={e} value={e} style={{ background: '#1a1a2e' }}>{e}</option>)}
-                </select>
-                {errors.experience && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.experience}</p>}
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>Fleet Size</label>
-                <select name="fleetSize" value={form.fleetSize} onChange={handleChange} style={{ ...inputStyle(false), cursor: 'pointer' }}>
-                  {['1','2','3','4','5','6-10','11-20','21-50','51-100','100-500','500+'].map(n => (
-                    <option key={n} value={n} style={{ background: '#1a1a2e' }}>{n} Truck{n === '1' ? '' : 's'}</option>
+          {/* FORM CARD */}
+          <div style={{ position:'relative', zIndex:3 }}>
+            <div style={{ background:'white', borderRadius:'24px', boxShadow:'0 8px 60px rgba(0,0,0,0.4)', border:'1px solid rgba(255,255,255,0.15)', overflow:'hidden' }}>
+              <div style={{ height:'4px', background:'linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)' }} />
+              <div style={{ padding:'1.5rem 1.75rem 1.25rem', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize:'1.15rem', fontWeight:800, color:'#0f172a', marginBottom:'2px' }}>
+                    {step === 1 ? 'Basic Information' : step === 2 ? 'Vehicle & Routes' : 'Document Details'}
+                  </h2>
+                  <p style={{ color:'#94a3b8', fontSize:'0.75rem', margin:0 }}>Step {step} of 3</p>
+                </div>
+                <div style={{ display:'flex', gap:'5px' }}>
+                  {[1,2,3].map(s => (
+                    <div key={s} style={{ width: step === s ? '18px' : '7px', height:'7px', borderRadius:'100px', background: step >= s ? '#f59e0b' : '#e2e8f0', transition:'all 0.3s' }} />
                   ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={labelStyle}>Routes Aap Cover Karte Ho * (Multiple select kar sakte ho)</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
-                  {routeOptions.map(route => {
-                    const selected = form.routes.includes(route);
-                    return (
-                      <button key={route} type="button" onClick={() => toggleRoute(route)}
-                        style={{ padding: '0.45rem 0.9rem', borderRadius: '100px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', border: `1.5px solid ${selected ? '#e63946' : 'rgba(255,255,255,0.15)'}`, background: selected ? 'rgba(230,57,70,0.25)' : 'rgba(255,255,255,0.05)', color: selected ? 'white' : 'rgba(255,255,255,0.6)', transition: 'all 0.15s' }}>
-                        {selected ? '✓ ' : ''}{route}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.routes && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '6px' }}>{errors.routes}</p>}
-                {form.routes.length > 0 && <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', marginTop: '6px', fontWeight: 600 }}>{form.routes.length} route{form.routes.length > 1 ? 's' : ''} selected</p>}
-              </div>
-              <div style={{ background: 'rgba(230,57,70,0.1)', border: '1px solid rgba(230,57,70,0.2)', borderRadius: '12px', padding: '1rem' }}>
-                <p style={{ fontWeight: 700, color: '#e63946', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Estimated Monthly Earnings</p>
-                {[['Per trip average','Rs.8,000 - Rs.15,000'],['Trips per month','10 - 20 trips']].map(([l,v]) => (
-                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{l}</span>
-                    <span style={{ fontWeight: 700, color: 'white' }}>{v}</span>
-                  </div>
-                ))}
-                <div style={{ borderTop: '1px solid rgba(230,57,70,0.2)', marginTop: '0.5rem', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontWeight: 700, color: '#e63946' }}>Total Earning</span>
-                  <span style={{ fontWeight: 900, color: '#e63946', fontSize: '1rem' }}>Rs.80K - Rs.2L/month</span>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
-            <div>
-              <h3 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 900, color: 'white', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Document Details</h3>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.8rem', marginBottom: '1.5rem' }}>These details are required for verification — safe and secure</p>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>RC Number (Registration Certificate) *</label>
-                <input name="rcNumber" value={form.rcNumber} onChange={handleUpperCase('rcNumber')} placeholder="e.g. MP09AB1234" style={inputStyle(errors.rcNumber)}
-                  onFocus={e => e.target.style.borderColor='#e63946'} onBlur={e => e.target.style.borderColor=errors.rcNumber?'#ef4444':'rgba(255,255,255,0.15)'} />
-                {errors.rcNumber && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.rcNumber}</p>}
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>Driving License Number *</label>
-                <input name="licenseNumber" value={form.licenseNumber} onChange={handleUpperCase('licenseNumber')} placeholder="e.g. MP0920110012345" style={inputStyle(errors.licenseNumber)}
-                  onFocus={e => e.target.style.borderColor='#e63946'} onBlur={e => e.target.style.borderColor=errors.licenseNumber?'#ef4444':'rgba(255,255,255,0.15)'} />
-                {errors.licenseNumber && <p style={{ color: '#fca5a5', fontSize: '0.72rem', marginTop: '4px' }}>{errors.licenseNumber}</p>}
-              </div>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={labelStyle}>Fitness Certificate Number <span style={{ marginLeft: '6px', background: 'rgba(230,57,70,0.2)', color: '#e63946', fontSize: '0.65rem', padding: '2px 7px', borderRadius: '100px', fontWeight: 700 }}>Optional</span></label>
-                <input name="fitnessCertNumber" value={form.fitnessCertNumber} onChange={handleUpperCase('fitnessCertNumber')} placeholder="e.g. FC/MP/2024/12345" style={inputStyle(false)}
-                  onFocus={e => e.target.style.borderColor='#e63946'} onBlur={e => e.target.style.borderColor='rgba(255,255,255,0.15)'} />
-              </div>
-              <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '0.85rem', marginBottom: '1.5rem' }}>
-                <p style={{ color: '#4ade80', fontSize: '0.8rem', fontWeight: 600 }}>Your information is 100% safe</p>
-                <p style={{ color: 'rgba(74,222,128,0.7)', fontSize: '0.75rem', marginTop: '4px' }}>Documents will only be used for verification. They will not be shared with anyone.</p>
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>Registration Summary</p>
-                {[['Name',form.name],['Phone',form.phone],['City',form.city],['Vehicle',form.vehicle],['Experience',form.experience]].map(([label, val]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</span>
-                    <span style={{ fontWeight: 700, color: 'white' }}>{val}</span>
-                  </div>
-                ))}
-                {form.routes.length > 0 && (
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginBottom: '4px' }}>Selected Routes:</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {form.routes.map(r => (
-                        <span key={r} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '100px', fontWeight: 600 }}>{r}</span>
-                      ))}
-                    </div>
+              <div style={{ padding:'1.25rem 1.75rem 1.75rem', display:'flex', flexDirection:'column', gap:'12px', maxHeight:'65vh', overflowY:'auto' }}>
+                {apiError && (
+                  <div style={{ background:'#fff5f5', border:'1px solid #fecaca', borderRadius:'10px', padding:'10px 14px', color:'#b91c1c', fontSize:'0.82rem' }}>
+                    {apiError}
                   </div>
                 )}
+
+                {/* ── STEP 1 ── */}
+                {step === 1 && (
+                  <>
+                    <Field label="Full Name *" error={errors.name}>
+                      <input className="fi" name="name" value={form.name} onChange={handleChange} placeholder="Your full name" style={inp(!!errors.name)} />
+                    </Field>
+
+                    {/* Phone + OTP */}
+                    <Field label="Mobile Number *" error={errors.phone}>
+                      <div style={{ display:'flex', gap:'8px' }}>
+                        <input
+                          className="fi" name="phone" type="tel"
+                          value={form.phone} onChange={handleChange}
+                          placeholder="10-digit mobile number" maxLength={10}
+                          disabled={otpVerified}
+                          style={{ ...inp(!!errors.phone), flex:1, background: otpVerified ? '#f0fdf4' : (errors.phone ? '#fff5f5' : '#f8fafc') }}
+                        />
+                        {!otpVerified && (
+                          <button
+                            onClick={sendOTP}
+                            disabled={otpLoading || countdown > 0}
+                            style={{
+                              padding:'10px 14px', borderRadius:'10px', border:'none',
+                              background: countdown > 0 ? '#e2e8f0' : '#f59e0b',
+                              color: countdown > 0 ? '#94a3b8' : '#0f172a',
+                              fontWeight:700, fontSize:'0.78rem', cursor: (otpLoading || countdown > 0) ? 'not-allowed' : 'pointer',
+                              whiteSpace:'nowrap', fontFamily:'inherit', minWidth:'90px',
+                              display:'flex', alignItems:'center', justifyContent:'center', gap:'4px'
+                            }}
+                          >
+                            {otpLoading ? <><span className="spin" /></> : countdown > 0 ? `${countdown}s` : otpSent ? 'Resend' : 'Send OTP'}
+                          </button>
+                        )}
+                        {otpVerified && (
+                          <div style={{ display:'flex', alignItems:'center', padding:'0 10px', color:'#16a34a', fontWeight:700, fontSize:'0.8rem', whiteSpace:'nowrap' }}>
+                            ✓ Verified
+                          </div>
+                        )}
+                      </div>
+                    </Field>
+
+                    {/* OTP Input — show after sent, hide after verified */}
+                    {otpSent && !otpVerified && (
+                      <Field label="Enter OTP *" error={errors.otp}>
+                        <div style={{ display:'flex', gap:'8px' }}>
+                          <input
+                            className="fi" type="text" inputMode="numeric"
+                            value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g,'')); setOtpError(''); }}
+                            placeholder="Enter 6-digit OTP" maxLength={6}
+                            style={{ ...inp(!!otpError || !!errors.otp), flex:1, letterSpacing:'4px', fontSize:'1rem', textAlign:'center' }}
+                          />
+                          <button
+                            onClick={verifyOTP}
+                            disabled={otpLoading}
+                            style={{
+                              padding:'10px 16px', borderRadius:'10px', border:'none',
+                              background:'#0f172a', color:'white',
+                              fontWeight:700, fontSize:'0.78rem', cursor: otpLoading ? 'not-allowed' : 'pointer',
+                              fontFamily:'inherit', minWidth:'80px',
+                              display:'flex', alignItems:'center', justifyContent:'center', gap:'4px'
+                            }}
+                          >
+                            {otpLoading ? <span className="spin" style={{ borderTopColor:'white' }} /> : 'Verify'}
+                          </button>
+                        </div>
+                        {otpError && <p style={{ fontSize:'0.7rem', color:'#ef4444', margin:0 }}>{otpError}</p>}
+                        {otpSuccess && !otpError && <p style={{ fontSize:'0.7rem', color:'#16a34a', margin:0 }}>{otpSuccess}</p>}
+                      </Field>
+                    )}
+
+                    {/* Verified success message */}
+                    {otpVerified && (
+                      <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:'10px', padding:'10px 14px', display:'flex', alignItems:'center', gap:'8px' }}>
+                        <span style={{ fontSize:'1rem', color:'#16a34a' }}>✓</span>
+                        <p style={{ fontSize:'0.78rem', color:'#15803d', fontWeight:600, margin:0 }}>Phone number verified successfully!</p>
+                      </div>
+                    )}
+
+                    {errors.otp && !otpSent && (
+                      <p style={{ fontSize:'0.7rem', color:'#ef4444', margin:0 }}>{errors.otp}</p>
+                    )}
+
+                    <Field label="Your City *" error={errors.city}>
+                      <select className="fi" name="city" value={form.city} onChange={handleChange} style={{ ...inp(!!errors.city), cursor:'pointer' }}>
+                        <option value="">Select city</option>
+                        {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </Field>
+
+                    <Field label="How Did You Hear About Us">
+                      <select className="fi" name="source" value={form.source} onChange={handleChange} style={{ ...inp(false), cursor:'pointer' }}>
+                        <option value="">Select source</option>
+                        {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </Field>
+                  </>
+                )}
+
+                {/* ── STEP 2 ── */}
+                {step === 2 && (
+                  <>
+                    <Field label="Vehicle Type *" error={errors.vehicle}>
+                      <select className="fi" name="vehicle" value={form.vehicle} onChange={handleChange} style={{ ...inp(!!errors.vehicle), cursor:'pointer' }}>
+                        <option value="">Select vehicle</option>
+                        {VEHICLES.map(v => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </Field>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' }}>
+                      <Field label="Experience *" error={errors.experience}>
+                        <select className="fi" name="experience" value={form.experience} onChange={handleChange} style={{ ...inp(!!errors.experience), cursor:'pointer' }}>
+                          <option value="">Select</option>
+                          {EXPERIENCES.map(e => <option key={e} value={e}>{e}</option>)}
+                        </select>
+                      </Field>
+                      <Field label="Fleet Size">
+                        <select className="fi" name="fleetSize" value={form.fleetSize} onChange={handleChange} style={{ ...inp(false), cursor:'pointer' }}>
+                          {['1','2','3','4','5','6-10','11-20','21-50','51-100','100+'].map(n => (
+                            <option key={n} value={n}>{n} Truck{n==='1'?'':'s'}</option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
+                    <Field label="Routes You Cover *" error={errors.routes}>
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:'5px', padding:'10px', background:'#f8fafc', borderRadius:'10px', border:`1.5px solid ${errors.routes ? '#fca5a5' : '#e2e8f0'}` }}>
+                        {ROUTES.map(route => {
+                          const sel = form.routes.includes(route);
+                          return (
+                            <button key={route} type="button" onClick={() => toggleRoute(route)} style={{ padding:'4px 10px', borderRadius:'100px', fontSize:'0.72rem', fontWeight:600, cursor:'pointer', border:`1.5px solid ${sel ? '#f59e0b' : '#e2e8f0'}`, background: sel ? '#fffbeb' : 'white', color: sel ? '#b45309' : '#64748b', transition:'all 0.15s', fontFamily:'inherit' }}>
+                              {route}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {form.routes.length > 0 && <p style={{ fontSize:'0.68rem', color:'#b45309', fontWeight:600, margin:0 }}>{form.routes.length} route{form.routes.length>1?'s':''} selected</p>}
+                    </Field>
+                  </>
+                )}
+
+                {/* ── STEP 3 ── */}
+                {step === 3 && (
+                  <>
+                    <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:'10px', padding:'10px 14px' }}>
+                      <p style={{ fontSize:'0.78rem', fontWeight:700, color:'#15803d', marginBottom:'2px' }}>Your data is 100% secure</p>
+                      <p style={{ fontSize:'0.72rem', color:'#16a34a', margin:0 }}>Used only for verification — never shared.</p>
+                    </div>
+                    <Field label="RC Number *" error={errors.rcNumber}>
+                      <input className="fi" name="rcNumber" value={form.rcNumber} onChange={handleUpper('rcNumber')} placeholder="e.g. MP09AB1234" style={inp(!!errors.rcNumber)} />
+                    </Field>
+                    <Field label="Driving License Number *" error={errors.licenseNumber}>
+                      <input className="fi" name="licenseNumber" value={form.licenseNumber} onChange={handleUpper('licenseNumber')} placeholder="e.g. MP0920110012345" style={inp(!!errors.licenseNumber)} />
+                    </Field>
+                    <Field label="Fitness Certificate Number" optional>
+                      <input className="fi" name="fitnessCertNumber" value={form.fitnessCertNumber} onChange={handleUpper('fitnessCertNumber')} placeholder="e.g. FC/MP/2024/12345" style={inp(false)} />
+                    </Field>
+                    <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:'10px', padding:'0.9rem' }}>
+                      <p style={{ fontSize:'0.6rem', fontWeight:700, color:'#94a3b8', letterSpacing:'1.5px', textTransform:'uppercase', marginBottom:'0.6rem' }}>Summary</p>
+                      {[['Name',form.name],['Phone',form.phone],['City',form.city],['Vehicle',form.vehicle],['Experience',form.experience]].map(([l,v])=>(
+                        <div key={l} style={{ display:'flex', justifyContent:'space-between', fontSize:'0.78rem', padding:'3px 0', borderBottom:'1px solid #f1f5f9' }}>
+                          <span style={{ color:'#94a3b8' }}>{l}</span>
+                          <span style={{ fontWeight:700, color:'#0f172a' }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <div style={{ display:'flex', gap:'8px', paddingTop:'4px' }}>
+                  {step > 1 && (
+                    <button onClick={() => { setStep(step-1); setErrors({}); }} style={{ flex:1, padding:'11px', background:'white', color:'#64748b', border:'1.5px solid #e2e8f0', borderRadius:'10px', fontWeight:600, cursor:'pointer', fontSize:'0.85rem', fontFamily:'inherit' }}>
+                      Back
+                    </button>
+                  )}
+                  <button onClick={handleNext} disabled={loading} className="sub-btn" style={{ flex:2, padding:'12px', background: loading ? '#fcd34d' : '#f59e0b', color:'#0f172a', border:'none', borderRadius:'10px', fontWeight:800, cursor: loading ? 'not-allowed' : 'pointer', fontSize:'0.9rem', fontFamily:'inherit', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', boxShadow:'0 4px 20px rgba(245,158,11,0.35)', transition:'all 0.2s' }}>
+                    {loading ? <><span className="spin" />Submitting...</> : step < 3 ? `Continue to Step ${step+1}` : 'Submit Registration'}
+                  </button>
+                </div>
               </div>
             </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            {step > 1 && (
-              <button onClick={() => setStep(step - 1)}
-                style={{ flex: 1, padding: '0.85rem', borderRadius: '10px', border: '2px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
-                Back
-              </button>
-            )}
-            <button onClick={nextStep} disabled={loading}
-              style={{ flex: 2, padding: '0.85rem', borderRadius: '10px', border: 'none', background: loading ? 'rgba(230,57,70,0.5)' : '#e63946', color: 'white', fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: '0.95rem', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(230,57,70,0.3)' }}>
-              {loading ? 'Submitting...' : step === 3 ? '✅ Submit Registration' : `Next - Step ${step + 1}`}
-            </button>
           </div>
         </div>
+
+        <div style={{ position:'absolute', bottom:'3rem', left:'5%', display:'flex', gap:'8px', zIndex:2 }}>
+          {IMAGES.map((_, i) => (
+            <button key={i} onClick={() => { setImgFade(false); setTimeout(() => { setImgIdx(i); setImgFade(true); }, 250); }}
+              style={{ width: i===imgIdx ? '26px' : '7px', height:'7px', borderRadius:'100px', background: i===imgIdx ? '#f59e0b' : 'rgba(255,255,255,0.25)', border:'none', cursor:'pointer', transition:'all 0.3s', padding:0 }} />
+          ))}
+        </div>
       </div>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
-        input::placeholder { color: rgba(255,255,255,0.3) !important; }
-        select option { background: #1a1a2e; color: white; }
-      `}</style>
+
+      {/* TRUST BAR */}
+      <div {...rv('trust')} style={{ ...rv('trust').style, background:'#0f172a', padding:'4rem 5%', marginTop:'2rem' }}>
+        <div style={{ maxWidth:'1240px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'2rem', textAlign:'center' }} className="trust-grid">
+          {[
+            ['Verified Platform','All drivers are background-verified and trained before onboarding.'],
+            ['Direct Bank Payment','No middlemen — payment goes directly to your bank account in 24 hours.'],
+            ['24/7 Driver Support','Our operations team is available round the clock to support you on every trip.'],
+          ].map(([t,d],i)=>(
+            <div key={i} style={{ padding:'1.5rem' }}>
+              <div style={{ width:'32px', height:'3px', background:'#f59e0b', borderRadius:'2px', margin:'0 auto 1rem' }} />
+              <h3 style={{ fontSize:'0.95rem', fontWeight:800, color:'white', marginBottom:'0.5rem' }}>{t}</h3>
+              <p style={{ fontSize:'0.82rem', color:'rgba(255,255,255,0.35)', lineHeight:1.7, margin:0 }}>{d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-export default DriverPartner;
+const CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  input, select, button { font-family: inherit; }
+  input::placeholder { color: #94a3b8 !important; }
+  select option { color: #0f172a; background: white; }
+  input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.45; }
+  .fi:focus {
+    outline: none;
+    border-color: #f59e0b !important;
+    background: #fffbeb !important;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.12) !important;
+  }
+  .sub-btn:hover {
+    background: #d97706 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(245,158,11,0.45) !important;
+  }
+  .sub-btn:active { transform: translateY(0) !important; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2.5px solid rgba(0,0,0,0.15); border-top-color: #0f172a;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+    .hero-grid > div:last-child { display: none; }
+    .form-grid { grid-template-columns: 1fr !important; }
+    .form-grid > div:last-child { position: static !important; }
+    .trust-grid { grid-template-columns: 1fr !important; }
+  }
+`;
