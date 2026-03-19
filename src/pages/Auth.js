@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { authAPI } from '../api';
 
 const CITIES = [
   'Indore','Pithampur','Bhopal','Dewas','Ujjain',
@@ -69,7 +69,6 @@ const CSS = `
 .sw-switch span:hover { text-decoration:underline; }
 .sw-forgot { text-align:right; font-size:0.72rem; color:#f59e0b; cursor:pointer; font-weight:600; margin-bottom:1.25rem; margin-top:-0.5rem; }
 .sw-forgot:hover { text-decoration:underline; }
-.sw-otp-info { font-size:0.7rem; color:#9ca3af; margin-bottom:0.75rem; }
 @keyframes sw-spin { to { transform:rotate(360deg); } }
 .sw-spin { width:13px; height:13px; border:2px solid rgba(0,0,0,0.2); border-top-color:#111; border-radius:50%; animation:sw-spin 0.7s linear infinite; display:inline-block; }
 .sw-spin.w { border-top-color:white; }
@@ -156,22 +155,40 @@ export default function Auth() {
     }
   };
 
-  // ── LOGIN ──
+  // ✅ FIX: handleLogin — email aur phone dono sahi bhejo backend ko
   const handleLogin = async () => {
-    if (!loginId.trim())  { setError('Enter your email or phone number.'); return; }
+    const id = loginId.trim();
+    if (!id)            { setError('Enter your email or phone number.'); return; }
     if (!loginPwd.trim()) { setError('Enter your password.'); return; }
+
     setLoading(true);
+    setError('');
     try {
-      const isPhone = /^[6-9]\d{9}$/.test(loginId.trim());
+      const isPhone = /^[6-9]\d{9}$/.test(id);
+
+      // ✅ Phone ke liye { phone, password }, email ke liye { email, password }
       const payload = isPhone
-        ? { phone: loginId.trim(), password: loginPwd }
-        : { email: loginId.trim(), password: loginPwd };
+        ? { phone: id, password: loginPwd }
+        : { email: id, password: loginPwd };
+
       const res = await authAPI.login(payload);
-      saveAndGo(res.data);
+
+      if (res.data && res.data.token) {
+        saveAndGo(res.data);
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      const msg = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // Enter key se bhi login ho
+  const handleLoginKeyDown = (e) => {
+    if (e.key === 'Enter') handleLogin();
   };
 
   // ── REGISTER: Send OTP ──
@@ -290,6 +307,7 @@ export default function Auth() {
                     placeholder="Email address or 10-digit phone"
                     value={loginId}
                     onChange={e => { setLoginId(e.target.value); setError(''); }}
+                    onKeyDown={handleLoginKeyDown}
                     autoComplete="username"
                   />
                 </div>
@@ -300,6 +318,7 @@ export default function Auth() {
                     placeholder="Enter your password"
                     value={loginPwd}
                     onChange={e => { setLoginPwd(e.target.value); setError(''); }}
+                    onKeyDown={handleLoginKeyDown}
                     autoComplete="current-password"
                   />
                 </div>
@@ -307,7 +326,7 @@ export default function Auth() {
                 <div className="sw-forgot">Forgot password?</div>
 
                 <button className="sw-btn" onClick={handleLogin} disabled={loading}>
-                  {loading ? <><span className="sw-spin" /> Signing in...</> : 'Sign In'}
+                  {loading ? <><span className="sw-spin" /> Signing in...</> : 'Sign In →'}
                 </button>
               </>
             )}
@@ -373,7 +392,7 @@ export default function Auth() {
                 <Field label="Password *" name="password" type="password" placeholder="Minimum 6 characters" value={form.password} onChange={handleFormChange} />
 
                 <button className="sw-btn" onClick={handleRegister} disabled={loading}>
-                  {loading ? <><span className="sw-spin" /> Creating account...</> : 'Sign Up'}
+                  {loading ? <><span className="sw-spin" /> Creating account...</> : 'Sign Up →'}
                 </button>
               </>
             )}
